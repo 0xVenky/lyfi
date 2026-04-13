@@ -57,28 +57,32 @@ export function SimulationTooltip({
       {children}
       {open && (
         <div
-          className="absolute bottom-full right-0 mb-2 z-50 w-64 rounded-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-4 shadow-xl"
+          className="absolute bottom-full right-0 mb-2 z-50 w-64 rounded-2xl p-4 shadow-lg"
+          style={{
+            backgroundColor: "var(--surface-container-lowest)",
+            boxShadow: "0 8px 40px rgba(25, 28, 30, 0.06)",
+          }}
           role="tooltip"
         >
-          <div className="text-xs text-gray-500 dark:text-zinc-400 mb-3">
+          <div className="text-xs mb-3" style={{ color: "var(--on-surface-variant)" }}>
             ${deposit.toLocaleString()} deposit estimate:
           </div>
-          <dl className="space-y-1.5 font-[family-name:var(--font-geist-mono)] text-sm">
+          <dl className="space-y-1.5 text-sm tabular-nums">
             <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-zinc-400">Daily</dt>
-              <dd className="text-gray-900 dark:text-zinc-100">{formatUsd(sim.daily_earnings_per_1k)}</dd>
+              <dt style={{ color: "var(--on-surface-variant)" }}>Daily</dt>
+              <dd className="font-semibold" style={{ color: "var(--on-surface)" }}>{formatUsd(sim.daily_earnings_per_1k)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-zinc-400">Monthly</dt>
-              <dd className="text-gray-900 dark:text-zinc-100">{formatUsd(sim.monthly_earnings_per_1k)}</dd>
+              <dt style={{ color: "var(--on-surface-variant)" }}>Monthly</dt>
+              <dd className="font-semibold" style={{ color: "var(--on-surface)" }}>{formatUsd(sim.monthly_earnings_per_1k)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-gray-500 dark:text-zinc-400">Yearly</dt>
-              <dd className="text-gray-900 dark:text-zinc-100">{formatUsd(sim.yearly_earnings_per_1k)}</dd>
+              <dt style={{ color: "var(--on-surface-variant)" }}>Yearly</dt>
+              <dd className="font-semibold" style={{ color: "var(--on-surface)" }}>{formatUsd(sim.yearly_earnings_per_1k)}</dd>
             </div>
           </dl>
 
-          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-zinc-700">
+          <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--surface-container-high)" }}>
             {editing ? (
               <div className="flex gap-2">
                 <input
@@ -90,13 +94,18 @@ export function SimulationTooltip({
                     if (e.key === "Escape") setEditing(false);
                   }}
                   placeholder="Amount ($)"
-                  className="flex-1 bg-gray-50 dark:bg-zinc-900 border border-gray-300 dark:border-zinc-600 rounded px-2 py-1 text-xs text-gray-900 dark:text-zinc-200 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="flex-1 rounded-lg px-2 py-1 text-xs border-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  style={{
+                    backgroundColor: "var(--surface-container-low)",
+                    color: "var(--on-surface)",
+                  }}
                   autoFocus
                   aria-label="Custom deposit amount"
                 />
                 <button
                   onClick={saveDeposit}
-                  className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 font-medium"
+                  className="text-xs font-semibold"
+                  style={{ color: "var(--secondary)" }}
                 >
                   Set
                 </button>
@@ -108,14 +117,15 @@ export function SimulationTooltip({
                   setInputValue(String(deposit));
                   setEditing(true);
                 }}
-                className="text-xs text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors"
+                className="text-xs transition-colors hover:opacity-80"
+                style={{ color: "var(--primary)" }}
               >
                 Change deposit amount
               </button>
             )}
           </div>
 
-          <p className="text-[10px] text-gray-400 dark:text-zinc-600 mt-2 leading-tight">
+          <p className="text-[10px] mt-2 leading-tight" style={{ color: "var(--outline)" }}>
             Estimates based on current APY. Actual returns may vary.
           </p>
         </div>

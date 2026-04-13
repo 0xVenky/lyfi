@@ -33,15 +33,19 @@ export function SortHeader({
 
   return (
     <th
-      className={`sticky top-0 bg-white dark:bg-zinc-950 px-4 py-3 font-medium cursor-pointer select-none hover:text-gray-600 dark:hover:text-zinc-300 transition-colors ${
+      className={`sticky top-0 px-5 py-3.5 font-semibold cursor-pointer select-none transition-colors ${
         align === "right" ? "text-right" : ""
       }`}
+      style={{
+        backgroundColor: "var(--surface-container-low)",
+        color: isActive ? "var(--primary)" : "var(--on-surface-variant)",
+      }}
       onClick={toggleSort}
       aria-sort={isActive ? (currentOrder === "asc" ? "ascending" : "descending") : "none"}
     >
       <span className="inline-flex items-center gap-1">
         {label}
-        <span className="text-gray-300 dark:text-zinc-600" aria-hidden="true">
+        <span style={{ color: isActive ? "var(--primary)" : "var(--outline-variant)" }} aria-hidden="true">
           {isActive ? (currentOrder === "desc" ? "\u2193" : "\u2191") : "\u2195"}
         </span>
       </span>

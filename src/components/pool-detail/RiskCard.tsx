@@ -3,16 +3,19 @@ import type { RiskDetail } from "@/lib/types";
 function RiskRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between">
-      <dt className="text-gray-500 dark:text-zinc-400">{label}</dt>
-      <dd className="font-[family-name:var(--font-geist-mono)] text-gray-700 dark:text-zinc-300">{value}</dd>
+      <dt style={{ color: "var(--on-surface-variant)" }}>{label}</dt>
+      <dd className="tabular-nums font-medium" style={{ color: "var(--on-surface)" }}>{value}</dd>
     </div>
   );
 }
 
 export function RiskCard({ risk }: { risk: RiskDetail }) {
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/50 p-5">
-      <h2 className="text-sm font-medium text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-4">
+    <div className="rounded-2xl p-5" style={{ backgroundColor: "var(--surface-container-lowest)" }}>
+      <h2
+        className="text-sm font-medium uppercase tracking-wider mb-4 font-[family-name:var(--font-manrope)]"
+        style={{ color: "var(--on-surface-variant)" }}
+      >
         Risk Signals
       </h2>
       <dl className="space-y-2 text-sm">

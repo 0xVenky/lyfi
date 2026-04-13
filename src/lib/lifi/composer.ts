@@ -27,8 +27,10 @@ const TransactionRequestSchema = z.object({
 
 const EstimateSchema = z.object({
   fromAmount: z.string(),
+  fromAmountUSD: z.string().optional(),
   toAmount: z.string(),
   toAmountMin: z.string(),
+  toAmountUSD: z.string().optional(),
   approvalAddress: z.string().optional(),
   gasCosts: z.array(GasCostSchema).optional(),
   executionDuration: z.number().optional(),

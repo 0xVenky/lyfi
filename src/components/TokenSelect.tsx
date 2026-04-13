@@ -46,7 +46,6 @@ export function TokenSelect({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // Build deduplicated token list: native + underlying + common ERC20s
   const tokens = useMemo(() => {
     const native = NATIVE_TOKENS[chainId];
     const erc20s = ERC20_TOKENS_BY_CHAIN[chainId] ?? [];
@@ -77,10 +76,8 @@ export function TokenSelect({
     [tokens],
   );
 
-  // Native balance
   const { data: nativeBal } = useBalance({ address: wallet, chainId });
 
-  // ERC20 balances via multicall
   const contracts = useMemo(
     () =>
       wallet
@@ -100,7 +97,6 @@ export function TokenSelect({
     query: { enabled: !!wallet && contracts.length > 0 },
   });
 
-  // Enrich tokens with balances
   const enriched: SelectedToken[] = useMemo(() => {
     return tokens.map((t) => {
       if (t.address.toLowerCase() === NATIVE_TOKEN_ADDRESS) {
@@ -127,7 +123,6 @@ export function TokenSelect({
     });
   }, [tokens, nativeBal, erc20Bals, erc20Tokens]);
 
-  // Sort: tokens with balance first
   const sorted = useMemo(
     () =>
       [...enriched].sort((a, b) => {
@@ -144,11 +139,13 @@ export function TokenSelect({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 rounded-lg bg-zinc-700 hover:bg-zinc-600 px-3 py-2.5 text-sm font-medium text-zinc-200 transition-colors"
+        className="flex items-center gap-1.5 rounded-full pl-3 pr-2.5 py-2.5 text-sm font-bold transition-colors"
+        style={{ backgroundColor: "var(--surface-container-high)", color: "var(--on-surface)" }}
       >
         {selected.symbol}
         <svg
-          className={`h-3.5 w-3.5 text-zinc-400 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+          style={{ color: "var(--outline)" }}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -158,28 +155,34 @@ export function TokenSelect({
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-1 w-56 max-h-60 overflow-y-auto rounded-lg bg-zinc-800 border border-zinc-700 shadow-xl">
-          {sorted.map((token) => (
-            <button
-              key={token.address}
-              onClick={() => {
-                onSelect(token);
-                setOpen(false);
-              }}
-              className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-zinc-700/50 transition-colors ${
-                token.address.toLowerCase() === selected.address.toLowerCase()
-                  ? "bg-zinc-700/30 text-emerald-400"
-                  : "text-zinc-300"
-              }`}
-            >
-              <span className="font-medium">{token.symbol}</span>
-              {token.balance !== undefined && (
-                <span className="text-xs text-zinc-500">{token.balance}</span>
-              )}
-            </button>
-          ))}
+        <div
+          className="absolute right-0 z-50 mt-1 w-56 max-h-60 overflow-y-auto rounded-2xl shadow-lg"
+          style={{ backgroundColor: "var(--surface-container-lowest)", boxShadow: "0 8px 40px rgba(25, 28, 30, 0.08)" }}
+        >
+          {sorted.map((token) => {
+            const isSelected = token.address.toLowerCase() === selected.address.toLowerCase();
+            return (
+              <button
+                key={token.address}
+                onClick={() => {
+                  onSelect(token);
+                  setOpen(false);
+                }}
+                className="w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors"
+                style={{
+                  color: isSelected ? "var(--primary)" : "var(--on-surface)",
+                  backgroundColor: isSelected ? "var(--surface-container-low)" : "transparent",
+                }}
+              >
+                <span className="font-semibold">{token.symbol}</span>
+                {token.balance !== undefined && (
+                  <span className="text-xs" style={{ color: "var(--outline)" }}>{token.balance}</span>
+                )}
+              </button>
+            );
+          })}
           {sorted.length === 0 && (
-            <div className="px-3 py-2 text-xs text-zinc-500">
+            <div className="px-4 py-3 text-xs" style={{ color: "var(--outline)" }}>
               No tokens available
             </div>
           )}

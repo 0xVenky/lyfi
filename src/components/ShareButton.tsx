@@ -16,12 +16,13 @@ export function ShareButton({ poolId }: { poolId: string }) {
   return (
     <button
       onClick={share}
-      className="p-1.5 rounded text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+      className="p-1.5 rounded-lg transition-colors"
+      style={{ color: copied ? "var(--secondary)" : "var(--outline)" }}
       aria-label="Copy pool URL"
       title={copied ? "Copied!" : "Share"}
     >
       {copied ? (
-        <svg className="h-4 w-4 text-emerald-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
         </svg>
       ) : (

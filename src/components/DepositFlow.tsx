@@ -27,6 +27,7 @@ import {
   NATIVE_TOKENS,
   type CommonToken,
 } from "@/lib/constants";
+import { formatProtocolName } from "@/lib/utils";
 import { ChainSelect } from "./ChainSelect";
 import { TokenSelect, type SelectedToken } from "./TokenSelect";
 import type { PoolDetail } from "@/lib/types";
@@ -58,6 +59,8 @@ type QuoteResult = {
   toAmountMin: string;
   toTokenDecimals: number;
   toTokenSymbol: string;
+  toAmountUSD: string | null;
+  fromAmountUSD: string | null;
   gasCostUSD: string;
   executionTime?: number;
   routeSteps: RouteStep[];
@@ -125,8 +128,8 @@ function Spinner({ size = "sm" }: { size?: "sm" | "lg" }) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-zinc-500">{label}</span>
-      <span className="text-zinc-200 text-right">{value}</span>
+      <span style={{ color: "var(--on-surface-variant)" }}>{label}</span>
+      <span className="text-right tabular-nums" style={{ color: "var(--on-surface)" }}>{value}</span>
     </div>
   );
 }
@@ -146,14 +149,12 @@ export function DepositFlow({
   const vaultChain = CHAIN_BY_ID[vaultChainId];
   const underlyingToken = pool.exposure.underlying_tokens[0];
 
-  // ---- Wagmi hooks ----
   const wagmiConfig = useConfig();
   const { address, chainId: walletChainId, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { switchChainAsync } = useSwitchChain();
   const { sendTransactionAsync, reset: resetTx } = useSendTransaction();
 
-  // ---- State ----
   const [step, setStep] = useState<Step>("idle");
   const [fromChainId, setFromChainId] = useState<number>(vaultChainId);
   const [fromToken, setFromToken] = useState<CommonToken>(() =>
@@ -164,12 +165,10 @@ export function DepositFlow({
   const [error, setError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<Hex | undefined>();
 
-  // ---- Derived ----
   const isNativeFrom =
     fromToken.address.toLowerCase() === NATIVE_TOKEN_ADDRESS;
   const isCrossChain = fromChainId !== vaultChainId;
 
-  // ---- Balance for selected token ----
   const { data: nativeBal } = useBalance({
     address,
     chainId: fromChainId,
@@ -198,7 +197,6 @@ export function DepositFlow({
     return undefined;
   }, [isNativeFrom, nativeBal, erc20BalRaw, fromToken.decimals]);
 
-  // ---- Tx confirmation ----
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
   });
@@ -207,7 +205,6 @@ export function DepositFlow({
     if (step === "pending" && isConfirmed) setStep("confirmed");
   }, [step, isConfirmed]);
 
-  // ---- Auto-open when arriving from Zap link ----
   useEffect(() => {
     if (autoOpen && isConnected && step === "idle") {
       const chain = walletChainId ?? vaultChainId;
@@ -217,7 +214,6 @@ export function DepositFlow({
     }
   }, [autoOpen, isConnected, walletChainId, vaultChainId, underlyingToken, step]);
 
-  // ---- Quote expiry (60s) ----
   const [quoteAge, setQuoteAge] = useState(0);
   const quoteExpired = quoteAge >= 60;
   useEffect(() => {
@@ -229,7 +225,6 @@ export function DepositFlow({
     return () => clearInterval(interval);
   }, [step]);
 
-  // ---- Explorer link ----
   const explorerBase = CHAIN_BY_ID[fromChainId]?.explorer;
   const explorerUrl =
     txHash && explorerBase ? `${explorerBase}/tx/${txHash}` : null;
@@ -261,14 +256,12 @@ export function DepositFlow({
     if (!selectedBalance) return;
     const num = parseFloat(selectedBalance.formatted);
     if (isNativeFrom && num > 0.01) {
-      // Leave gas buffer for native tokens
       setAmount(String(num - 0.01));
     } else {
       setAmount(selectedBalance.formatted);
     }
   };
 
-  // ---- Get quote ----
   const handleGetQuote = useCallback(async () => {
     if (!address || !amount || !fromToken.address) return;
 
@@ -293,7 +286,6 @@ export function DepositFlow({
         throw new Error(data.error || `Quote failed (${res.status})`);
       }
 
-      // Parse gas costs
       const gasCosts: { amountUSD?: string }[] =
         data.estimate?.gasCosts ?? [];
       const totalGasUSD = gasCosts.reduce(
@@ -302,7 +294,6 @@ export function DepositFlow({
         0,
       );
 
-      // Parse route steps from includedSteps
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const routeSteps: RouteStep[] = (data.includedSteps ?? []).map(
         (s: any) => ({
@@ -318,6 +309,8 @@ export function DepositFlow({
         toAmountMin: data.estimate.toAmountMin,
         toTokenDecimals: data.action?.toToken?.decimals ?? 18,
         toTokenSymbol: data.action?.toToken?.symbol ?? "shares",
+        toAmountUSD: data.estimate?.toAmountUSD ?? null,
+        fromAmountUSD: data.estimate?.fromAmountUSD ?? null,
         gasCostUSD: totalGasUSD.toFixed(2),
         executionTime: data.estimate?.executionDuration,
         routeSteps,
@@ -335,18 +328,15 @@ export function DepositFlow({
     }
   }, [address, amount, fromToken, fromChainId, vaultChainId, pool.vault_address]);
 
-  // ---- Execute deposit ----
   const handleDeposit = useCallback(async () => {
     if (!quote || !address) return;
 
     try {
-      // Switch chain if wallet is on wrong chain
       if (walletChainId !== quote.txChainId) {
         setStep("signing");
         await switchChainAsync({ chainId: quote.txChainId });
       }
 
-      // Approve ERC20 if needed (native tokens don't need approval)
       const needsApproval =
         !isNativeFrom && !!quote.approvalAddress;
       if (needsApproval) {
@@ -364,7 +354,6 @@ export function DepositFlow({
         await waitForTransactionReceipt(wagmiConfig, { hash: approveHash });
       }
 
-      // Send deposit tx
       setStep("signing");
       const hash = await sendTransactionAsync({
         to: quote.txTo as Hex,
@@ -412,42 +401,45 @@ export function DepositFlow({
   // RENDER
   // ========================================================================
 
-  // Not transactional — link to protocol
   if (!pool.is_transactional) {
     return pool.protocol_url ? (
       <a
         href={pool.protocol_url}
         target="_blank"
         rel="noopener noreferrer"
-        className="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-5 py-2.5 text-sm font-medium text-white transition-colors text-center sm:text-left"
+        className="rounded-full px-6 py-3 text-sm font-bold text-white transition-all hover:opacity-90 shadow-lg shadow-purple-500/20"
+        style={{ background: "linear-gradient(135deg, #630ed4, #7c3aed)" }}
       >
         Deposit on {pool.protocol} &rarr;
       </a>
     ) : (
-      <span className="rounded-lg bg-zinc-800 px-5 py-2.5 text-sm font-medium text-zinc-500 cursor-not-allowed">
+      <span
+        className="rounded-full px-6 py-3 text-sm font-medium cursor-not-allowed"
+        style={{ backgroundColor: "var(--surface-container-high)", color: "var(--outline)" }}
+      >
         Deposits not available
       </span>
     );
   }
 
-  // Wallet not connected
   if (!isConnected) {
     return (
       <button
         onClick={() => openConnectModal?.()}
-        className="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-5 py-2.5 text-sm font-medium text-white transition-colors"
+        className="rounded-full px-6 py-3 text-sm font-bold text-white transition-all hover:opacity-90 shadow-lg shadow-purple-500/20"
+        style={{ background: "linear-gradient(135deg, #630ed4, #7c3aed)" }}
       >
         Connect Wallet to Deposit
       </button>
     );
   }
 
-  // Idle — single CTA
   if (step === "idle") {
     return (
       <button
         onClick={handleStartDeposit}
-        className="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-5 py-2.5 text-sm font-medium text-white transition-colors"
+        className="rounded-full px-6 py-3 text-sm font-bold text-white transition-all hover:opacity-90 shadow-lg shadow-purple-500/20"
+        style={{ background: "linear-gradient(135deg, #630ed4, #7c3aed)" }}
       >
         Deposit via LI.FI
       </button>
@@ -456,17 +448,20 @@ export function DepositFlow({
 
   // ---- Expanded card for all other steps ----
   return (
-    <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/80 p-4 w-full max-w-sm space-y-3">
-      {/* ── Input / Quoting ── */}
+    <div
+      className="rounded-[2rem] p-5 w-full max-w-sm space-y-3"
+      style={{ backgroundColor: "var(--surface-container-lowest)", boxShadow: "0 8px 40px rgba(25, 28, 30, 0.06)" }}
+    >
+      {/* -- Input / Quoting -- */}
       {(step === "input" || step === "quoting") && (
         <>
-          <div className="text-sm font-medium text-zinc-300">
+          <div className="text-sm font-bold font-[family-name:var(--font-manrope)]" style={{ color: "var(--on-surface)" }}>
             Zap into {pool.symbol}
           </div>
 
           {/* Chain selector */}
           <div>
-            <label className="text-xs text-zinc-500 mb-1 block">
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1 block" style={{ color: "var(--outline)" }}>
               From Chain
             </label>
             <ChainSelect
@@ -477,7 +472,9 @@ export function DepositFlow({
 
           {/* Amount + Token selector */}
           <div>
-            <label className="text-xs text-zinc-500 mb-1 block">Amount</label>
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1 block" style={{ color: "var(--outline)" }}>
+              Amount
+            </label>
             <div className="flex items-center gap-1">
               <input
                 type="text"
@@ -489,7 +486,8 @@ export function DepositFlow({
                     setAmount(e.target.value);
                 }}
                 disabled={step === "quoting"}
-                className="flex-1 min-w-0 rounded-lg bg-zinc-800 border border-zinc-700 px-3 py-2.5 text-zinc-100 text-lg placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+                className="flex-1 min-w-0 rounded-xl px-3 py-2.5 text-lg font-bold border-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 font-[family-name:var(--font-manrope)]"
+                style={{ backgroundColor: "var(--surface-container-low)", color: "var(--on-surface)" }}
                 autoFocus
               />
               <TokenSelect
@@ -500,16 +498,16 @@ export function DepositFlow({
               />
             </div>
 
-            {/* Balance + MAX */}
             {selectedBalance && (
               <div className="flex items-center justify-between mt-1.5">
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs" style={{ color: "var(--outline)" }}>
                   Balance: {formatBalDisplay(selectedBalance.formatted)}{" "}
                   {fromToken.symbol}
                 </span>
                 <button
                   onClick={handleMax}
-                  className="text-xs text-emerald-400 hover:text-emerald-300 font-medium"
+                  className="text-xs font-bold"
+                  style={{ color: "var(--primary)" }}
                 >
                   MAX
                 </button>
@@ -517,16 +515,14 @@ export function DepositFlow({
             )}
           </div>
 
-          {/* Cross-chain indicator */}
           {isCrossChain && (
-            <p className="text-xs text-amber-400/80 flex items-center gap-1">
+            <p className="text-xs flex items-center gap-1" style={{ color: "#d97706" }}>
               <span>&#x26A1;</span>
               Cross-chain via LI.FI:{" "}
               {CHAIN_BY_ID[fromChainId]?.name} &rarr; {vaultChain?.name}
             </p>
           )}
 
-          {/* Get Quote */}
           <button
             onClick={handleGetQuote}
             disabled={
@@ -534,11 +530,16 @@ export function DepositFlow({
               parseFloat(amount) <= 0 ||
               step === "quoting"
             }
-            className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-700 disabled:text-zinc-500 px-4 py-2.5 text-sm font-medium text-white transition-colors"
+            className="w-full rounded-full py-3 text-sm font-bold text-white transition-all disabled:opacity-40"
+            style={
+              amount && parseFloat(amount) > 0 && step !== "quoting"
+                ? { background: "linear-gradient(135deg, #630ed4, #7c3aed)", boxShadow: "0 4px 16px rgba(99, 14, 212, 0.2)" }
+                : { backgroundColor: "var(--surface-container-high)", color: "var(--outline)" }
+            }
           >
             {step === "quoting" ? (
               <span className="flex items-center justify-center gap-2">
-                <Spinner /> Getting quote&hellip;
+                <Spinner /> Getting quote...
               </span>
             ) : (
               "Get Quote"
@@ -547,52 +548,30 @@ export function DepositFlow({
         </>
       )}
 
-      {/* ── Quoted ── */}
+      {/* -- Quoted -- */}
       {step === "quoted" && quote && (
         <>
-          <div className="text-sm font-medium text-zinc-300">Quote</div>
-          <div className="space-y-2 rounded-lg bg-zinc-800/50 p-3 text-sm">
-            <Row
-              label="You deposit"
-              value={`${amount} ${fromToken.symbol}`}
-            />
-
-            {/* Route steps */}
-            {quote.routeSteps.length > 0 && (
-              <div className="py-1 space-y-0.5">
-                <span className="text-zinc-500 text-xs">Route</span>
-                <div className="flex items-center gap-1 text-xs flex-wrap">
-                  <span className="text-zinc-300">{fromToken.symbol}</span>
-                  {quote.routeSteps.map((s, i) => (
-                    <span key={i} className="contents">
-                      <span className="text-zinc-600">&rarr;</span>
-                      <span className="rounded bg-zinc-700/60 px-1.5 py-0.5 text-zinc-400">
-                        {s.type === "swap"
-                          ? "Swap"
-                          : s.type === "cross"
-                            ? "Bridge"
-                            : s.type}
-                        {s.toolName && (
-                          <span className="text-zinc-500">
-                            {" "}
-                            ({s.toolName})
-                          </span>
-                        )}
-                      </span>
-                      <span className="text-zinc-600">&rarr;</span>
-                      <span className="text-zinc-300">{s.toSymbol}</span>
-                    </span>
-                  ))}
-                  <span className="text-zinc-600">&rarr;</span>
-                  <span className="text-emerald-400 font-medium">Vault</span>
-                </div>
+          <div className="text-sm font-bold font-[family-name:var(--font-manrope)]" style={{ color: "var(--on-surface)" }}>Quote</div>
+          <div className="space-y-2 rounded-2xl p-4 text-sm" style={{ backgroundColor: "var(--surface-container-low)" }}>
+            <div className="flex items-center justify-between gap-2">
+              <span style={{ color: "var(--on-surface-variant)" }}>You deposit</span>
+              <div className="text-right">
+                <span className="tabular-nums" style={{ color: "var(--on-surface)" }}>{amount} {fromToken.symbol}</span>
+                {quote.fromAmountUSD && (
+                  <span className="block text-xs tabular-nums" style={{ color: "var(--outline)" }}>~${parseFloat(quote.fromAmountUSD).toFixed(2)}</span>
+                )}
               </div>
-            )}
+            </div>
 
-            <Row
-              label="You receive"
-              value={`~${formatTokenAmount(quote.toAmount, quote.toTokenDecimals)} ${quote.toTokenSymbol}`}
-            />
+            <div className="flex items-center justify-between gap-2">
+              <span style={{ color: "var(--on-surface-variant)" }}>You receive</span>
+              <div className="text-right">
+                <span className="tabular-nums font-semibold" style={{ color: "var(--on-surface)" }}>~{formatTokenAmount(quote.toAmount, quote.toTokenDecimals)} {quote.toTokenSymbol}</span>
+                {quote.toAmountUSD && (
+                  <span className="block text-xs tabular-nums" style={{ color: "var(--secondary)" }}>~${parseFloat(quote.toAmountUSD).toFixed(2)}</span>
+                )}
+              </div>
+            </div>
             <Row
               label="Minimum"
               value={`~${formatTokenAmount(quote.toAmountMin, quote.toTokenDecimals)} ${quote.toTokenSymbol}`}
@@ -614,18 +593,34 @@ export function DepositFlow({
                 value={`${CHAIN_BY_ID[fromChainId]?.name} \u2192 ${vaultChain?.name}`}
               />
             )}
+            {pool.protocol_url && (
+              <div className="flex items-center justify-between gap-2">
+                <span style={{ color: "var(--on-surface-variant)" }}>Vault</span>
+                <a
+                  href={pool.protocol_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-medium hover:opacity-80 transition-opacity"
+                  style={{ color: "var(--primary)" }}
+                >
+                  View on {formatProtocolName(pool.protocol)} &#x2197;
+                </a>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={handleReset}
-              className="flex-1 rounded-lg border border-zinc-700 px-4 py-2.5 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+              className="flex-1 rounded-full px-4 py-2.5 text-sm font-medium transition-colors"
+              style={{ backgroundColor: "var(--surface-container-high)", color: "var(--on-surface-variant)" }}
             >
               Edit
             </button>
             <button
               onClick={handleDeposit}
-              className="flex-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-colors"
+              className="flex-1 rounded-full px-4 py-2.5 text-sm font-bold text-white transition-all hover:opacity-90"
+              style={{ backgroundColor: "var(--secondary)", boxShadow: "0 4px 16px rgba(0, 108, 81, 0.2)" }}
             >
               Confirm Deposit
             </button>
@@ -637,12 +632,13 @@ export function DepositFlow({
                 setQuote(null);
                 handleGetQuote();
               }}
-              className="w-full rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-400 hover:bg-amber-500/20 transition-colors"
+              className="w-full rounded-full px-4 py-2 text-xs font-medium"
+              style={{ color: "#d97706", backgroundColor: "rgba(217, 119, 6, 0.08)" }}
             >
-              Quote expired &mdash; click to refresh
+              Quote expired -- click to refresh
             </button>
           ) : (
-            <p className="text-xs text-zinc-600 text-center">
+            <p className="text-xs text-center" style={{ color: "var(--outline)" }}>
               Estimates based on current rates ({60 - quoteAge}s). Actual output
               may vary.
             </p>
@@ -650,40 +646,41 @@ export function DepositFlow({
         </>
       )}
 
-      {/* ── Approving ── */}
+      {/* -- Approving -- */}
       {step === "approving" && (
         <div className="flex flex-col items-center gap-3 py-4">
           <Spinner size="lg" />
-          <p className="text-sm text-zinc-300">Approving token&hellip;</p>
-          <p className="text-xs text-zinc-500">
+          <p className="text-sm font-medium" style={{ color: "var(--on-surface-variant)" }}>Approving token...</p>
+          <p className="text-xs" style={{ color: "var(--outline)" }}>
             Confirm the approval in your wallet
           </p>
         </div>
       )}
 
-      {/* ── Signing ── */}
+      {/* -- Signing -- */}
       {step === "signing" && (
         <div className="flex flex-col items-center gap-3 py-4">
           <Spinner size="lg" />
-          <p className="text-sm text-zinc-300">
-            Confirm in your wallet&hellip;
+          <p className="text-sm font-medium" style={{ color: "var(--on-surface-variant)" }}>
+            Confirm in your wallet...
           </p>
         </div>
       )}
 
-      {/* ── Pending ── */}
+      {/* -- Pending -- */}
       {step === "pending" && (
         <div className="flex flex-col items-center gap-3 py-4">
           <Spinner size="lg" />
-          <p className="text-sm text-zinc-300">
-            Confirming transaction&hellip;
+          <p className="text-sm font-medium" style={{ color: "var(--on-surface-variant)" }}>
+            Confirming transaction...
           </p>
           {explorerUrl && (
             <a
               href={explorerUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-emerald-400 hover:text-emerald-300 underline"
+              className="text-xs underline"
+              style={{ color: "var(--primary)" }}
             >
               View on explorer
             </a>
@@ -691,13 +688,13 @@ export function DepositFlow({
         </div>
       )}
 
-      {/* ── Confirmed ── */}
+      {/* -- Confirmed -- */}
       {step === "confirmed" && (
         <div className="flex flex-col items-center gap-3 py-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-xl text-emerald-400">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full text-xl" style={{ backgroundColor: "var(--secondary-container)", color: "var(--on-secondary-container)" }}>
             &#x2713;
           </div>
-          <p className="text-sm font-medium text-zinc-200">
+          <p className="text-sm font-bold" style={{ color: "var(--on-surface)" }}>
             Deposit confirmed!
           </p>
           {explorerUrl && (
@@ -705,31 +702,34 @@ export function DepositFlow({
               href={explorerUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-emerald-400 hover:text-emerald-300 underline"
+              className="text-xs underline"
+              style={{ color: "var(--primary)" }}
             >
               View on explorer
             </a>
           )}
           <button
             onClick={handleReset}
-            className="mt-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="mt-1 text-xs transition-colors hover:opacity-80"
+            style={{ color: "var(--outline)" }}
           >
             Make another deposit
           </button>
         </div>
       )}
 
-      {/* ── Error ── */}
+      {/* -- Error -- */}
       {step === "error" && (
         <>
-          <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3">
-            <p className="text-sm text-red-400">
+          <div className="rounded-2xl p-3" style={{ backgroundColor: "var(--error-container)" }}>
+            <p className="text-sm" style={{ color: "var(--error)" }}>
               {error || "Something went wrong"}
             </p>
           </div>
           <button
             onClick={handleReset}
-            className="w-full rounded-lg border border-zinc-700 px-4 py-2.5 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="w-full rounded-full px-4 py-2.5 text-sm font-medium transition-colors"
+            style={{ backgroundColor: "var(--surface-container-high)", color: "var(--on-surface-variant)" }}
           >
             Try again
           </button>

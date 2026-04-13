@@ -19,7 +19,14 @@ export function VaultRow({ pool }: { pool: PoolListItem }) {
 
   return (
     <div
-      className="group flex items-center gap-4 px-5 py-4 rounded-2xl bg-gradient-to-r from-white via-white to-violet-50/60 border border-gray-100 hover:border-violet-200 hover:shadow-sm transition-all cursor-pointer"
+      className="group flex items-center gap-4 px-5 py-4 rounded-2xl transition-all cursor-pointer hover:scale-[1.005]"
+      style={{ backgroundColor: "var(--surface-container-lowest)" }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-bright)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-container-lowest)";
+      }}
       onClick={() => router.push(`/pool/${pool.id}`)}
       role="link"
       tabIndex={0}
@@ -28,8 +35,8 @@ export function VaultRow({ pool }: { pool: PoolListItem }) {
       }}
     >
       {/* Token icon area */}
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-100 to-violet-50 flex items-center justify-center shrink-0">
-        <span className="text-sm font-bold text-violet-500">
+      <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center shrink-0 shadow-sm shadow-purple-500/20">
+        <span className="text-sm font-bold text-white">
           {pool.symbol.charAt(0)}
         </span>
       </div>
@@ -37,26 +44,32 @@ export function VaultRow({ pool }: { pool: PoolListItem }) {
       {/* Name + protocol */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-gray-900 truncate">
+          <span className="font-semibold truncate" style={{ color: "var(--on-surface)" }}>
             {pool.symbol}
           </span>
           {pool.exposure.category === "stablecoin" && (
-            <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
+            <span
+              className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style={{ backgroundColor: "var(--secondary-container)", color: "var(--on-secondary-container)" }}
+            >
               Stable
             </span>
           )}
           {pool.exposure.category === "blue_chip" && (
-            <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+            <span
+              className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style={{ backgroundColor: "#dbeafe", color: "#1e40af" }}
+            >
               Blue Chip
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-gray-400">
+        <div className="flex items-center gap-1.5 mt-0.5 text-xs" style={{ color: "var(--outline)" }}>
           <span>{formatProtocolName(pool.protocol)}</span>
           {pool.yield.apr_reward !== null && pool.yield.apr_reward > 0 && (
             <>
-              <span className="text-gray-300">&middot;</span>
-              <span className="text-violet-400">{organicPct}% organic</span>
+              <span style={{ color: "var(--outline-variant)" }}>&middot;</span>
+              <span style={{ color: "var(--primary)" }}>{organicPct}% organic</span>
             </>
           )}
         </div>
@@ -65,7 +78,7 @@ export function VaultRow({ pool }: { pool: PoolListItem }) {
       {/* APY */}
       <div className="w-20 text-right shrink-0">
         <div className="relative group/apr">
-          <span className="text-lg font-semibold text-violet-600">
+          <span className="text-lg font-bold" style={{ color: "var(--secondary)" }}>
             {formatApr(pool.yield.apr_total)}
           </span>
           {pool.yield.is_estimated && (
@@ -73,30 +86,36 @@ export function VaultRow({ pool }: { pool: PoolListItem }) {
           )}
           {(pool.yield.apr_base !== null ||
             pool.yield.apr_reward !== null) && (
-            <div className="absolute hidden group-hover/apr:block bottom-full right-0 mb-2 z-20 w-48 rounded-xl border border-gray-100 bg-white p-3 shadow-lg text-left text-xs">
+            <div
+              className="absolute hidden group-hover/apr:block bottom-full right-0 mb-2 z-20 w-48 rounded-2xl p-4 shadow-lg text-left text-xs"
+              style={{
+                backgroundColor: "var(--surface-container-lowest)",
+                boxShadow: "0 8px 40px rgba(25, 28, 30, 0.06)",
+              }}
+            >
               <div className="flex justify-between mb-1.5">
-                <span className="text-gray-500">
+                <span style={{ color: "var(--on-surface-variant)" }}>
                   {formatYieldSource(pool.yield_source)}
                 </span>
-                <span className="font-medium text-emerald-600">
+                <span className="font-bold" style={{ color: "var(--secondary)" }}>
                   {formatApr(pool.yield.apr_base)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Rewards</span>
-                <span className="font-medium text-violet-600">
+                <span style={{ color: "var(--on-surface-variant)" }}>Rewards</span>
+                <span className="font-bold" style={{ color: "var(--primary)" }}>
                   {formatApr(pool.yield.apr_reward)}
                 </span>
               </div>
             </div>
           )}
         </div>
-        <div className="text-[10px] text-gray-400 md:hidden">APY</div>
+        <div className="text-[10px] md:hidden" style={{ color: "var(--outline)" }}>APY</div>
       </div>
 
       {/* TVL */}
       <div className="w-24 text-right shrink-0 hidden md:block">
-        <span className="text-sm font-medium text-gray-600">
+        <span className="text-sm font-semibold" style={{ color: "var(--on-surface)" }}>
           {formatTvl(pool.tvl_usd)}
         </span>
       </div>
@@ -104,7 +123,10 @@ export function VaultRow({ pool }: { pool: PoolListItem }) {
       {/* Daily / $1K */}
       <div className="w-20 text-right shrink-0 hidden md:block">
         <SimulationTooltip aprTotal={pool.yield.apr_total}>
-          <span className="text-sm text-gray-500 cursor-help border-b border-dotted border-gray-200">
+          <span
+            className="text-sm cursor-help border-b border-dotted tabular-nums"
+            style={{ color: "var(--on-surface-variant)", borderColor: "var(--outline-variant)" }}
+          >
             {formatUsd(pool.simulation.daily_earnings_per_1k)}
           </span>
         </SimulationTooltip>
@@ -120,7 +142,8 @@ export function VaultRow({ pool }: { pool: PoolListItem }) {
         <Link
           href={`/pool/${pool.id}?deposit=1`}
           onClick={(e) => e.stopPropagation()}
-          className="shrink-0 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 px-3 py-1.5 text-xs font-medium hover:bg-emerald-100 hover:border-emerald-200 transition-colors hidden md:block"
+          className="shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-all hidden md:block hover:opacity-90"
+          style={{ backgroundColor: "var(--secondary-container)", color: "var(--on-secondary-container)" }}
         >
           Zap In &rarr;
         </Link>

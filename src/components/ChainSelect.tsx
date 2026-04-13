@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { SUPPORTED_CHAINS, CHAIN_BY_ID } from "@/lib/constants";
+import { ChainDot } from "./ChainDot";
 
 export function ChainSelect({
   selectedChainId,
@@ -28,17 +29,16 @@ export function ChainSelect({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 rounded-lg bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-200 hover:border-zinc-600 transition-colors"
+        className="w-full flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors"
+        style={{ backgroundColor: "var(--surface-container-low)", color: "var(--on-surface)" }}
       >
-        <span
-          className="h-2.5 w-2.5 rounded-full shrink-0"
-          style={{ backgroundColor: selected?.color }}
-        />
+        <ChainDot chain={selected?.network ?? ""} size={18} />
         <span className="flex-1 text-left">
           {selected?.name ?? "Select chain"}
         </span>
         <svg
-          className={`h-4 w-4 text-zinc-500 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}
+          style={{ color: "var(--outline)" }}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -48,27 +48,30 @@ export function ChainSelect({
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-lg bg-zinc-800 border border-zinc-700 shadow-xl">
-          {SUPPORTED_CHAINS.map((chain) => (
-            <button
-              key={chain.chainId}
-              onClick={() => {
-                onChange(chain.chainId);
-                setOpen(false);
-              }}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-zinc-700/50 transition-colors ${
-                chain.chainId === selectedChainId
-                  ? "bg-zinc-700/30 text-emerald-400"
-                  : "text-zinc-300"
-              }`}
-            >
-              <span
-                className="h-2 w-2 rounded-full shrink-0"
-                style={{ backgroundColor: chain.color }}
-              />
-              {chain.name}
-            </button>
-          ))}
+        <div
+          className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-2xl shadow-lg"
+          style={{ backgroundColor: "var(--surface-container-lowest)", boxShadow: "0 8px 40px rgba(25, 28, 30, 0.08)" }}
+        >
+          {SUPPORTED_CHAINS.map((chain) => {
+            const isSelected = chain.chainId === selectedChainId;
+            return (
+              <button
+                key={chain.chainId}
+                onClick={() => {
+                  onChange(chain.chainId);
+                  setOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium transition-colors"
+                style={{
+                  color: isSelected ? "var(--primary)" : "var(--on-surface)",
+                  backgroundColor: isSelected ? "var(--surface-container-low)" : "transparent",
+                }}
+              >
+                <ChainDot chain={chain.network} size={18} />
+                {chain.name}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

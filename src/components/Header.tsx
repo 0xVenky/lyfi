@@ -8,7 +8,7 @@ export function Header({ stats }: { stats: StatsResponse }) {
     : null;
 
   return (
-    <div className="px-4 sm:px-6 py-5 border-b border-gray-100">
+    <div className="px-6 sm:px-8 py-6">
       <div className="flex items-start justify-between">
         {/* Stats */}
         <div className="flex items-center gap-8">
@@ -19,7 +19,7 @@ export function Header({ stats }: { stats: StatsResponse }) {
         <WalletButton />
       </div>
       {refreshedAgo && (
-        <p className="text-[11px] text-gray-300 mt-2">Updated {refreshedAgo}</p>
+        <p className="text-[11px] mt-2" style={{ color: "var(--outline)" }}>Updated {refreshedAgo}</p>
       )}
     </div>
   );
@@ -28,8 +28,8 @@ export function Header({ stats }: { stats: StatsResponse }) {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">{label}</p>
-      <p className="text-xl font-semibold text-gray-900 mt-0.5">{value}</p>
+      <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "var(--on-surface-variant)" }}>{label}</p>
+      <p className="text-xl font-bold font-[family-name:var(--font-manrope)] mt-0.5" style={{ color: "var(--on-surface)" }}>{value}</p>
     </div>
   );
 }

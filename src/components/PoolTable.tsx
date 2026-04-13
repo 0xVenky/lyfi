@@ -6,17 +6,20 @@ export function PoolTable({ data }: { data: PaginatedResponse<PoolListItem> }) {
 
   if (pools.length === 0) {
     return (
-      <div className="text-center py-20 text-gray-400">
-        <p className="text-lg">No vaults found matching your filters.</p>
+      <div className="text-center py-20" style={{ color: "var(--outline)" }}>
+        <p className="text-lg font-medium">No vaults found matching your filters.</p>
         <p className="text-sm mt-1">Try adjusting your filters or search terms.</p>
       </div>
     );
   }
 
   return (
-    <div className="px-4 sm:px-6 py-2">
+    <div className="px-6 sm:px-8 py-2">
       {/* Column headers */}
-      <div className="hidden md:flex items-center gap-4 px-5 py-2 text-[11px] uppercase tracking-wider text-gray-400 font-medium">
+      <div
+        className="hidden md:flex items-center gap-4 px-5 py-2 text-[11px] uppercase tracking-wider font-semibold"
+        style={{ color: "var(--on-surface-variant)" }}
+      >
         <div className="w-10" />
         <div className="flex-1">Strategy</div>
         <div className="w-20 text-right">APY</div>

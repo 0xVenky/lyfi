@@ -5,7 +5,7 @@ import { FilterBar } from "@/components/FilterBar";
 import { PoolTable } from "@/components/PoolTable";
 import { Pagination } from "@/components/Pagination";
 import { WalletButton } from "@/components/WalletButton";
-import { ChainDot } from "@/components/ChainDot";
+import { ChainDot, ChainBadge } from "@/components/ChainDot";
 import { queryPools, queryStats } from "@/lib/api/query";
 import { ensureCachePopulated, getCachedPools } from "@/lib/pipeline/cache";
 import { formatTvl, formatApr, formatProtocolName } from "@/lib/utils";
@@ -49,7 +49,7 @@ export default async function HomePage({
 
   const hasFilters = Object.keys(params).some(k => !["page", "limit"].includes(k));
 
-  // If filters/search active → show table view
+  // If filters/search active -> show table view
   if (hasFilters) {
     const [pools, stats] = await Promise.all([
       queryPools(params),
@@ -72,7 +72,7 @@ export default async function HomePage({
     );
   }
 
-  // Landing page — no filters
+  // Landing page -- no filters
   await ensureCachePopulated();
   const allPools = getCachedPools();
   const stats = await queryStats();
@@ -89,10 +89,10 @@ export default async function HomePage({
       <div className="px-6 sm:px-10 pt-10 pb-8">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight font-[family-name:var(--font-manrope)]" style={{ color: "var(--on-surface)" }}>
               Yield Discovery
             </h1>
-            <p className="text-gray-400 mt-1.5 text-sm max-w-md">
+            <p className="mt-2 text-base max-w-md" style={{ color: "var(--on-surface-variant)" }}>
               Discover and deposit into {stats.total_pools}+ yield vaults across {stats.chains_covered} chains.
               One-click cross-chain deposits via LI.FI.
             </p>
@@ -100,8 +100,8 @@ export default async function HomePage({
           <WalletButton />
         </div>
 
-        {/* Stats row */}
-        <div className="flex items-center gap-10 mt-8">
+        {/* Stats bento grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
           <HeroStat label="Total TVL" value={formatTvl(totalTvl)} />
           <HeroStat label="Vaults" value={String(stats.total_pools)} />
           <HeroStat label="Chains" value={String(stats.chains_covered)} />
@@ -110,7 +110,8 @@ export default async function HomePage({
 
         <Link
           href="/?view=all"
-          className="inline-flex items-center gap-1 mt-6 text-sm text-violet-600 hover:text-violet-700 font-medium transition-colors"
+          className="inline-flex items-center gap-1 mt-6 text-sm font-semibold transition-colors hover:opacity-80"
+          style={{ color: "var(--primary)" }}
         >
           Explore all vaults &rarr;
         </Link>
@@ -123,7 +124,9 @@ export default async function HomePage({
           subtitle="Earn yield on USDC, USDT, DAI, and more"
           pools={stables}
           href="/?exposure_category=stablecoin&sort=apr_total&order=desc"
-          accent="emerald"
+          accentColor="var(--secondary)"
+          accentBg="var(--secondary-container)"
+          accentText="var(--on-secondary-container)"
         />
       )}
 
@@ -134,7 +137,9 @@ export default async function HomePage({
           subtitle="Maximize yield on ETH, wstETH, cbETH, and LSTs"
           pools={ethPools}
           href="/?exposure=ETH&sort=apr_total&order=desc"
-          accent="blue"
+          accentColor="#2563eb"
+          accentBg="#dbeafe"
+          accentText="#1e40af"
         />
       )}
 
@@ -145,7 +150,9 @@ export default async function HomePage({
           subtitle="Earn on WBTC, tBTC, and Bitcoin derivatives"
           pools={btcPools}
           href="/?exposure=WBTC&sort=apr_total&order=desc"
-          accent="orange"
+          accentColor="#ea580c"
+          accentBg="#fff7ed"
+          accentText="#9a3412"
         />
       )}
 
@@ -153,7 +160,8 @@ export default async function HomePage({
       <div className="px-6 sm:px-10 py-10 text-center">
         <Link
           href="/?view=all"
-          className="inline-flex items-center gap-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold text-white transition-all shadow-lg shadow-purple-500/20 hover:opacity-90"
+          style={{ background: "linear-gradient(135deg, #630ed4, #7c3aed)" }}
         >
           Browse all {stats.total_pools} vaults &rarr;
         </Link>
@@ -166,64 +174,51 @@ export default async function HomePage({
 
 function HeroStat({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <p className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">{label}</p>
-      <p className="text-2xl font-bold text-gray-900 mt-0.5">{value}</p>
+    <div
+      className="rounded-2xl p-5 transition-all hover:brightness-[0.98]"
+      style={{ backgroundColor: "var(--surface-container-low)" }}
+    >
+      <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "var(--on-surface-variant)" }}>{label}</p>
+      <p className="text-2xl font-black font-[family-name:var(--font-manrope)] mt-1" style={{ color: "var(--on-surface)" }}>{value}</p>
     </div>
   );
 }
-
-const ACCENT_COLORS = {
-  emerald: {
-    gradient: "from-emerald-50/80 to-emerald-100/40",
-    apy: "text-emerald-600",
-    badge: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    link: "text-emerald-600 hover:text-emerald-700",
-  },
-  blue: {
-    gradient: "from-blue-50/80 to-blue-100/40",
-    apy: "text-blue-600",
-    badge: "bg-blue-50 text-blue-700 border-blue-100",
-    link: "text-blue-600 hover:text-blue-700",
-  },
-  orange: {
-    gradient: "from-orange-50/80 to-orange-100/40",
-    apy: "text-orange-600",
-    badge: "bg-orange-50 text-orange-700 border-orange-100",
-    link: "text-orange-600 hover:text-orange-700",
-  },
-} as const;
 
 function CategorySection({
   title,
   subtitle,
   pools,
   href,
-  accent,
+  accentColor,
+  accentBg,
+  accentText,
 }: {
   title: string;
   subtitle: string;
   pools: PoolListItem[];
   href: string;
-  accent: keyof typeof ACCENT_COLORS;
+  accentColor: string;
+  accentBg: string;
+  accentText: string;
 }) {
-  const colors = ACCENT_COLORS[accent];
-
   return (
     <div className="px-6 sm:px-10 py-6">
-      <div className="flex items-end justify-between mb-4">
-        <div>
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-          <p className="text-sm text-gray-400 mt-0.5">{subtitle}</p>
+      <div className="flex items-end justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <span className="w-1.5 h-7 rounded-full" style={{ background: `linear-gradient(135deg, var(--primary), var(--primary-container))` }} />
+          <div>
+            <h2 className="text-xl font-bold font-[family-name:var(--font-manrope)] tracking-tight" style={{ color: "var(--on-surface)" }}>{title}</h2>
+            <p className="text-sm mt-0.5" style={{ color: "var(--on-surface-variant)" }}>{subtitle}</p>
+          </div>
         </div>
-        <Link href={href} className={`text-sm font-medium ${colors.link} transition-colors`}>
+        <Link href={href} className="text-sm font-semibold transition-colors hover:opacity-80" style={{ color: "var(--primary)" }}>
           View all &rarr;
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {pools.map((pool) => (
-          <StrategyCard key={pool.id} pool={pool} colors={colors} />
+          <StrategyCard key={pool.id} pool={pool} accentColor={accentColor} accentBg={accentBg} accentText={accentText} />
         ))}
       </div>
     </div>
@@ -232,50 +227,59 @@ function CategorySection({
 
 function StrategyCard({
   pool,
-  colors,
+  accentColor,
+  accentBg,
+  accentText,
 }: {
   pool: PoolListItem;
-  colors: (typeof ACCENT_COLORS)[keyof typeof ACCENT_COLORS];
+  accentColor: string;
+  accentBg: string;
+  accentText: string;
 }) {
   return (
     <div
-      className={`group rounded-2xl bg-gradient-to-br ${colors.gradient} border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all`}
+      className="group rounded-[2rem] hover:scale-[1.02] transition-all duration-300 relative overflow-hidden"
+      style={{ backgroundColor: "var(--surface-container-lowest)" }}
     >
-      {/* Main content — links to vault detail */}
-      <Link href={`/pool/${pool.id}`} className="block p-4 pb-2">
+      {/* Main content */}
+      <Link href={`/pool/${pool.id}`} className="block p-6 pb-3">
         {/* Protocol + chain badge */}
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-medium text-gray-500">
+        <div className="flex items-center justify-between mb-8">
+          <span className="text-xs font-medium" style={{ color: "var(--on-surface-variant)" }}>
             {formatProtocolName(pool.protocol)}
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 border border-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
-            <ChainDot chain={pool.chain} />
-            {pool.chain.charAt(0).toUpperCase() + pool.chain.slice(1)}
-          </span>
+          <ChainBadge
+            chain={pool.chain}
+            className="px-3 py-1"
+            style={{ backgroundColor: accentBg, color: accentText }}
+          />
         </div>
 
         {/* Symbol */}
-        <p className="font-semibold text-gray-900 text-sm truncate mb-1">{pool.symbol}</p>
+        <p className="text-sm font-medium mb-1" style={{ color: "var(--on-surface-variant)" }}>{pool.symbol}</p>
 
         {/* APY */}
-        <p className={`text-2xl font-bold ${colors.apy}`}>
-          {formatApr(pool.yield.apr_total)}
-        </p>
-        <p className="text-[10px] text-gray-400 -mt-0.5">APY</p>
+        <div className="flex items-baseline gap-1">
+          <p className="text-4xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tighter" style={{ color: "var(--on-surface)" }}>
+            {formatApr(pool.yield.apr_total)}
+          </p>
+          <span className="font-bold text-lg font-[family-name:var(--font-manrope)]" style={{ color: accentColor }}>APY</span>
+        </div>
       </Link>
 
-      {/* Footer — TVL + Zap In */}
-      <div className="flex items-center justify-between px-4 pb-3 pt-2 mx-4 border-t border-gray-100/80">
+      {/* Footer */}
+      <div className="flex items-center justify-between px-6 pb-5 pt-3">
         <div>
-          <span className="text-xs text-gray-400">TVL </span>
-          <span className="text-xs font-medium text-gray-600">{formatTvl(pool.tvl_usd)}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--outline)" }}>TVL</span>
+          <p className="text-sm font-bold" style={{ color: "var(--on-surface)" }}>{formatTvl(pool.tvl_usd)}</p>
         </div>
         {pool.is_transactional && (
           <Link
             href={`/pool/${pool.id}?deposit=1`}
-            className={`rounded-full ${colors.badge} px-2.5 py-1 text-[10px] font-medium hover:opacity-80 transition-opacity`}
+            className="rounded-full px-5 py-2.5 text-xs font-bold transition-all flex items-center gap-1.5 hover:opacity-90"
+            style={{ backgroundColor: accentBg, color: accentText }}
           >
-            Zap In &rarr;
+            Zap In <span className="material-symbols-outlined text-sm">arrow_forward</span>
           </Link>
         )}
       </div>

@@ -33,28 +33,29 @@ export function YieldBreakdownExpanded({ yield: y }: { yield: YieldData }) {
         >
           {basePct > 0 && (
             <div
-              className="bg-green-500 rounded-l-full"
-              style={{ width: `${basePct}%` }}
+              className="rounded-l-full"
+              style={{ width: `${basePct}%`, backgroundColor: "var(--secondary)" }}
             />
           )}
           {basePct < 100 && (
-            <div className="bg-blue-500 flex-1 rounded-r-full" />
+            <div className="flex-1 rounded-r-full" style={{ backgroundColor: "var(--primary)" }} />
           )}
         </div>
       ) : (
         <div
-          className="h-3 w-full rounded-full bg-gray-200 dark:bg-zinc-600"
+          className="h-3 w-full rounded-full"
+          style={{ backgroundColor: "var(--surface-container-high)" }}
           aria-label="APR breakdown unavailable"
         />
       )}
 
       {/* Labels */}
       {hasBreakdown && (
-        <div className="flex justify-between text-xs">
-          <span className="text-green-600 dark:text-green-400">
+        <div className="flex justify-between text-xs font-medium">
+          <span style={{ color: "var(--secondary)" }}>
             {formatYieldSource(y.yieldSource)}: {formatApr(y.apr_base)}
           </span>
-          <span className="text-blue-600 dark:text-blue-400">
+          <span style={{ color: "var(--primary)" }}>
             Incentive rewards: {formatApr(y.apr_reward)}
           </span>
         </div>
@@ -62,14 +63,14 @@ export function YieldBreakdownExpanded({ yield: y }: { yield: YieldData }) {
 
       {/* Organic ratio */}
       {organicRatio !== null && (
-        <div className="text-xs text-gray-500 dark:text-zinc-400">
+        <div className="text-xs" style={{ color: "var(--on-surface-variant)" }}>
           Organic ratio: {organicRatio}%
         </div>
       )}
 
       {/* Warning */}
       {mostlyIncentivized && (
-        <div className="text-xs text-amber-600 dark:text-amber-400">
+        <div className="text-xs" style={{ color: "#d97706" }}>
           Mostly incentivized
         </div>
       )}

@@ -43,7 +43,6 @@ export function VaultSelect({
   const [vaults, setVaults] = useState<VaultOption[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch depositable vaults on mount
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -91,7 +90,6 @@ export function VaultSelect({
     };
   }, []);
 
-  // Unique chains from vaults (for filter pills)
   const chains = useMemo(() => {
     const counts = new Map<number, number>();
     for (const v of vaults) {
@@ -103,7 +101,6 @@ export function VaultSelect({
       .filter(Boolean);
   }, [vaults]);
 
-  // Filtered list
   const filtered = useMemo(() => {
     let list = vaults;
     if (chainFilter) list = list.filter((v) => v.chainId === chainFilter);
@@ -124,30 +121,31 @@ export function VaultSelect({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full flex items-center justify-between rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-left hover:border-gray-300 transition-colors"
+        className="w-full flex items-center justify-between rounded-2xl px-4 py-3 text-left transition-colors"
+        style={{ backgroundColor: "var(--surface-container-low)" }}
       >
         {selected ? (
           <div className="flex items-center gap-3 min-w-0">
             <ChainDot chain={selected.chain} />
             <div className="min-w-0">
-              <span className="font-semibold text-gray-900 text-sm truncate block">
+              <span className="font-semibold text-sm truncate block" style={{ color: "var(--on-surface)" }}>
                 {selected.symbol}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs" style={{ color: "var(--outline)" }}>
                 {formatProtocolName(selected.protocol)}
               </span>
             </div>
           </div>
         ) : (
-          <span className="text-gray-400 text-sm">Select vault</span>
+          <span className="text-sm" style={{ color: "var(--outline)" }}>Select vault</span>
         )}
         <div className="flex items-center gap-2 shrink-0">
           {selected && (
-            <span className="text-sm font-semibold text-violet-600">
+            <span className="text-sm font-bold" style={{ color: "var(--secondary)" }}>
               {formatApr(selected.apr)}
             </span>
           )}
-          <span className="text-gray-400 text-sm">&#x25BE;</span>
+          <span style={{ color: "var(--outline)" }}>&#x25BE;</span>
         </div>
       </button>
 
@@ -155,51 +153,37 @@ export function VaultSelect({
       {open && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] px-4">
           <div
-            className="absolute inset-0 bg-black/30"
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <div className="relative w-full max-w-lg bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+          <div className="relative w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl" style={{ backgroundColor: "var(--surface-container-lowest)" }}>
             {/* Header */}
-            <div className="flex items-center justify-between px-5 pt-5 pb-3">
-              <h3 className="text-base font-bold text-gray-900">
+            <div className="flex items-center justify-between px-6 pt-6 pb-3">
+              <h3 className="text-base font-bold font-[family-name:var(--font-manrope)]" style={{ color: "var(--on-surface)" }}>
                 Select a vault
               </h3>
               <button
                 onClick={() => setOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-600"
+                className="p-1 transition-colors"
+                style={{ color: "var(--outline)" }}
               >
-                <svg
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                 </svg>
               </button>
             </div>
 
             {/* Search */}
-            <div className="px-5 pb-3">
+            <div className="px-6 pb-3">
               <div className="relative">
-                <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px]" style={{ color: "var(--outline)" }}>search</span>
                 <input
                   type="text"
                   placeholder="Search by name, protocol..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full rounded-lg bg-gray-50 border border-gray-200 pl-10 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-violet-400 focus:border-violet-400"
+                  className="w-full rounded-full pl-10 pr-4 py-2.5 text-sm border-none focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  style={{ backgroundColor: "var(--surface-container-low)", color: "var(--on-surface)" }}
                   autoFocus
                 />
               </div>
@@ -207,14 +191,15 @@ export function VaultSelect({
 
             {/* Chain filter pills */}
             {chains.length > 1 && (
-              <div className="px-5 pb-3 flex items-center gap-1.5 overflow-x-auto">
+              <div className="px-6 pb-3 flex items-center gap-1.5 overflow-x-auto hide-scrollbar">
                 <button
                   onClick={() => setChainFilter(null)}
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium border transition-colors ${
+                  className="shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all"
+                  style={
                     chainFilter === null
-                      ? "bg-violet-50 text-violet-700 border-violet-200"
-                      : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
-                  }`}
+                      ? { background: "linear-gradient(135deg, #630ed4, #7c3aed)", color: "#fff" }
+                      : { backgroundColor: "var(--surface-container-high)", color: "var(--on-surface-variant)" }
+                  }
                 >
                   All
                 </button>
@@ -226,16 +211,14 @@ export function VaultSelect({
                         chainFilter === c.chainId ? null : c.chainId,
                       )
                     }
-                    className={`shrink-0 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border transition-colors ${
+                    className="shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-all"
+                    style={
                       chainFilter === c.chainId
-                        ? "bg-violet-50 text-violet-700 border-violet-200"
-                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
-                    }`}
+                        ? { background: "linear-gradient(135deg, #630ed4, #7c3aed)", color: "#fff" }
+                        : { backgroundColor: "var(--surface-container-high)", color: "var(--on-surface-variant)" }
+                    }
                   >
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{ backgroundColor: c.color }}
-                    />
+                    <ChainDot chain={c.network} size={14} />
                     {c.name}
                   </button>
                 ))}
@@ -243,14 +226,14 @@ export function VaultSelect({
             )}
 
             {/* Vault list */}
-            <div className="max-h-80 overflow-y-auto border-t border-gray-100">
+            <div className="max-h-80 overflow-y-auto" style={{ borderTop: "1px solid var(--surface-container-high)" }}>
               {loading && (
-                <div className="py-8 text-center text-sm text-gray-400">
+                <div className="py-8 text-center text-sm" style={{ color: "var(--outline)" }}>
                   Loading vaults...
                 </div>
               )}
               {!loading && filtered.length === 0 && (
-                <div className="py-8 text-center text-sm text-gray-400">
+                <div className="py-8 text-center text-sm" style={{ color: "var(--outline)" }}>
                   No vaults found
                 </div>
               )}
@@ -262,33 +245,38 @@ export function VaultSelect({
                     setOpen(false);
                     setSearch("");
                   }}
-                  className={`w-full flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors text-left ${
-                    selected?.id === vault.id ? "bg-violet-50/50" : ""
-                  }`}
+                  className="w-full flex items-center gap-3 px-6 py-3 transition-colors text-left"
+                  style={{
+                    backgroundColor: selected?.id === vault.id ? "var(--surface-container-low)" : "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selected?.id !== vault.id) (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-bright)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = selected?.id === vault.id ? "var(--surface-container-low)" : "transparent";
+                  }}
                 >
-                  {/* Chain dot + info */}
                   <ChainDot chain={vault.chain} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-gray-900 truncate">
+                      <span className="font-semibold text-sm truncate" style={{ color: "var(--on-surface)" }}>
                         {vault.symbol}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
-                      <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500">
+                    <div className="flex items-center gap-1.5 text-xs mt-0.5" style={{ color: "var(--outline)" }}>
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: "var(--surface-container-high)", color: "var(--on-surface-variant)" }}>
                         {formatProtocolName(vault.protocol)}
                       </span>
                       <span>&middot;</span>
-                      <span>
-                        {vault.chain.charAt(0).toUpperCase() +
-                          vault.chain.slice(1)}
+                      <span className="inline-flex items-center gap-1">
+                        <ChainDot chain={vault.chain} size={14} />
+                        {vault.chain.charAt(0).toUpperCase() + vault.chain.slice(1)}
                       </span>
                       <span>&middot;</span>
                       <span>{formatTvl(vault.tvl)}</span>
                     </div>
                   </div>
-                  {/* APR */}
-                  <span className="text-sm font-semibold text-violet-600 shrink-0">
+                  <span className="text-sm font-bold shrink-0" style={{ color: "var(--secondary)" }}>
                     {formatApr(vault.apr)}
                   </span>
                 </button>

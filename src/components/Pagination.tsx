@@ -26,22 +26,30 @@ export function Pagination({ page, totalPages, total }: Props) {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between px-4 py-4 border-t border-gray-100 dark:border-zinc-800 text-sm">
-      <span className="text-gray-400 dark:text-zinc-500">
+    <div className="flex items-center justify-between px-6 sm:px-8 py-5 text-sm">
+      <span style={{ color: "var(--outline)" }}>
         Page {page} of {totalPages} ({total} pools)
       </span>
       <div className="flex gap-2">
         <button
           onClick={() => navigate(page - 1)}
           disabled={page <= 1}
-          className="px-3 py-1.5 rounded bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{
+            backgroundColor: "var(--surface-container-high)",
+            color: "var(--on-surface-variant)",
+          }}
         >
           Previous
         </button>
         <button
           onClick={() => navigate(page + 1)}
           disabled={page >= totalPages}
-          className="px-3 py-1.5 rounded bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{
+            backgroundColor: "var(--surface-container-high)",
+            color: "var(--on-surface-variant)",
+          }}
         >
           Next
         </button>

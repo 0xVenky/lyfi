@@ -13,7 +13,14 @@ export function PoolRow({
 
   return (
     <tr
-      className="hover:bg-gray-50 dark:hover:bg-zinc-900/70 transition-colors cursor-pointer"
+      className="transition-colors cursor-pointer"
+      style={{ borderBottom: "1px solid var(--surface-container-low)" }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-bright)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.backgroundColor = "";
+      }}
       tabIndex={0}
       role="row"
       onClick={() => router.push(href)}

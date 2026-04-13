@@ -3,23 +3,131 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  /* Atelier Surface Hierarchy */
+  --surface: #f7f9fb;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f2f4f6;
+  --surface-container: #eceef0;
+  --surface-container-high: #e6e8ea;
+  --surface-container-highest: #e0e3e5;
+  --surface-bright: #f7f9fb;
+  --surface-dim: #d8dadc;
+
+  /* Atelier Primary (Purple) */
+  --primary: #630ed4;
+  --primary-container: #7c3aed;
+  --on-primary: #ffffff;
+  --on-primary-container: #ede0ff;
+
+  /* Atelier Secondary (Mint) */
+  --secondary: #006c51;
+  --secondary-container: #58fdc8;
+  --on-secondary: #ffffff;
+  --on-secondary-container: #007256;
+
+  /* Atelier Tertiary */
+  --tertiary: #5800e5;
+  --tertiary-container: #7138fd;
+
+  /* Text */
+  --on-surface: #191c1e;
+  --on-surface-variant: #4a4455;
+  --on-background: #191c1e;
+
+  /* Outlines */
+  --outline: #7b7487;
+  --outline-variant: #ccc3d8;
+
+  /* Status */
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+
+  /* Inverse */
+  --inverse-surface: #2d3133;
+  --inverse-on-surface: #eff1f3;
+  --inverse-primary: #d2bbff;
+
+  /* Legacy compat */
   --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --bg-tertiary: #f3f4f6;
-  --text-primary: #111827;
-  --text-secondary: #374151;
-  --text-muted: #6b7280;
-  --border: #e5e7eb;
-  --hover: #f9fafb;
+  --bg-secondary: #f7f9fb;
+  --bg-tertiary: #f2f4f6;
+  --text-primary: #191c1e;
+  --text-secondary: #4a4455;
+  --text-muted: #7b7487;
+  --border: #e6e8ea;
+  --hover: #f2f4f6;
 }
 
 .dark {
-  --bg-primary: #09090b;
-  --bg-secondary: #18181b;
-  --bg-tertiary: #27272a;
-  --text-primary: #f4f4f5;
-  --text-secondary: #d4d4d8;
-  --text-muted: #71717a;
-  --border: #27272a;
-  --hover: #27272a;
+  --surface: #111318;
+  --surface-container-lowest: #0c0e13;
+  --surface-container-low: #191c22;
+  --surface-container: #1d2027;
+  --surface-container-high: #282b31;
+  --surface-container-highest: #33363c;
+  --surface-bright: #33363c;
+  --surface-dim: #111318;
+
+  --primary: #d2bbff;
+  --primary-container: #5a00c6;
+  --on-primary: #25005a;
+  --on-primary-container: #ede0ff;
+
+  --secondary: #2ee0ad;
+  --secondary-container: #00513c;
+  --on-secondary: #002116;
+  --on-secondary-container: #58fdc8;
+
+  --tertiary: #cdbdff;
+  --tertiary-container: #4f00d0;
+
+  --on-surface: #e2e2e5;
+  --on-surface-variant: #c4c6cf;
+  --on-background: #e2e2e5;
+
+  --outline: #8e9099;
+  --outline-variant: #44474e;
+
+  --error: #ffb4ab;
+  --error-container: #93000a;
+
+  --inverse-surface: #e2e2e5;
+  --inverse-on-surface: #2d3133;
+  --inverse-primary: #630ed4;
+
+  --bg-primary: #111318;
+  --bg-secondary: #191c22;
+  --bg-tertiary: #1d2027;
+  --text-primary: #e2e2e5;
+  --text-secondary: #c4c6cf;
+  --text-muted: #8e9099;
+  --border: #33363c;
+  --hover: #282b31;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(247, 249, 251, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+.dark .glass {
+  background: rgba(17, 19, 24, 0.7);
+}
+
+/* Gradient primary */
+.gradient-primary {
+  background: linear-gradient(135deg, #630ed4 0%, #7c3aed 100%);
+}
+.dark .gradient-primary {
+  background: linear-gradient(135deg, #7c3aed 0%, #9f67ff 100%);
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

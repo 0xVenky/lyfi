@@ -5,13 +5,13 @@ import { useState, useEffect } from "react";
 const STORAGE_KEY = "yeelds_theme";
 
 export function ThemeToggle() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "light") {
-      setDark(false);
-      document.documentElement.classList.remove("dark");
+    if (stored === "dark") {
+      setDark(true);
+      document.documentElement.classList.add("dark");
     }
   }, []);
 
@@ -30,7 +30,8 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="p-2 rounded-lg text-gray-500 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+      className="p-2 rounded-xl transition-colors"
+      style={{ color: "var(--outline)" }}
       aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
     >
       {dark ? (

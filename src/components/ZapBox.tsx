@@ -31,6 +31,7 @@ import {
   type CommonToken,
 } from "@/lib/constants";
 import { VaultSelect, type VaultOption } from "./VaultSelect";
+import { ChainDot } from "./ChainDot";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -363,15 +364,15 @@ export function ZapBox() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+      <div className="rounded-[2rem] overflow-hidden" style={{ backgroundColor: "var(--surface-container-lowest)", boxShadow: "0 8px 40px rgba(25, 28, 30, 0.06)" }}>
         {/* ── FROM section ── */}
         <div className="p-5 pb-3">
-          <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--outline)" }}>
             From
           </label>
 
           {/* Amount + token selector */}
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-3">
             <input
               type="text"
               inputMode="decimal"
@@ -383,7 +384,8 @@ export function ZapBox() {
                   if (quote) { setQuote(null); setStep("idle"); }
                 }
               }}
-              className="flex-1 min-w-0 text-2xl font-semibold text-gray-900 bg-transparent placeholder:text-gray-300 focus:outline-none"
+              className="flex-1 min-w-0 text-2xl font-bold bg-transparent focus:outline-none font-[family-name:var(--font-manrope)]"
+              style={{ color: "var(--on-surface)" }}
             />
 
             {/* Token dropdown */}
@@ -391,15 +393,16 @@ export function ZapBox() {
               <button
                 type="button"
                 onClick={() => setTokenOpen(!tokenOpen)}
-                className="flex items-center gap-1.5 rounded-full bg-gray-100 hover:bg-gray-200 pl-3 pr-2.5 py-2 text-sm font-semibold text-gray-900 transition-colors"
+                className="flex items-center gap-1.5 rounded-full pl-3 pr-2.5 py-2 text-sm font-bold transition-colors"
+                style={{ backgroundColor: "var(--surface-container-high)", color: "var(--on-surface)" }}
               >
                 {fromToken.symbol}
-                <svg className="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-3.5 w-3.5" style={{ color: "var(--outline)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               {tokenOpen && (
-                <div className="absolute right-0 z-50 mt-1 w-52 max-h-60 overflow-y-auto rounded-xl bg-white border border-gray-200 shadow-lg">
+                <div className="absolute right-0 z-50 mt-1 w-52 max-h-60 overflow-y-auto rounded-2xl shadow-lg" style={{ backgroundColor: "var(--surface-container-lowest)", boxShadow: "0 8px 40px rgba(25, 28, 30, 0.08)" }}>
                   {tokens.map((t) => {
                     const isNative = t.address.toLowerCase() === NATIVE_TOKEN_ADDRESS;
                     let bal: string | undefined;
@@ -411,6 +414,7 @@ export function ZapBox() {
                         bal = fmtBal(formatUnits(erc20Bals[idx].result as bigint, t.decimals));
                       }
                     }
+                    const isSelected = t.address.toLowerCase() === fromToken.address.toLowerCase();
                     return (
                       <button
                         key={t.address}
@@ -419,15 +423,15 @@ export function ZapBox() {
                           setTokenOpen(false);
                           if (quote) { setQuote(null); setStep("idle"); }
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 text-sm hover:bg-gray-50 transition-colors ${
-                          t.address.toLowerCase() === fromToken.address.toLowerCase()
-                            ? "bg-violet-50 text-violet-700"
-                            : "text-gray-700"
-                        }`}
+                        className="w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors"
+                        style={{
+                          color: isSelected ? "var(--primary)" : "var(--on-surface)",
+                          backgroundColor: isSelected ? "var(--surface-container-low)" : "transparent",
+                        }}
                       >
-                        <span className="font-medium">{t.symbol}</span>
+                        <span className="font-semibold">{t.symbol}</span>
                         {bal !== undefined && (
-                          <span className="text-xs text-gray-400">{bal}</span>
+                          <span className="text-xs" style={{ color: "var(--outline)" }}>{bal}</span>
                         )}
                       </button>
                     );
@@ -440,11 +444,11 @@ export function ZapBox() {
           {/* Balance + Max + Chain */}
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-2">
-              {/* Chain selector */}
               <select
                 value={fromChainId}
                 onChange={(e) => handleChainChange(Number(e.target.value))}
-                className="text-xs text-gray-500 bg-transparent border-none focus:outline-none cursor-pointer pr-1"
+                className="text-xs bg-transparent border-none focus:outline-none cursor-pointer pr-1 font-medium"
+                style={{ color: "var(--on-surface-variant)" }}
               >
                 {SUPPORTED_CHAINS.map((c) => (
                   <option key={c.chainId} value={c.chainId}>
@@ -455,12 +459,13 @@ export function ZapBox() {
             </div>
             {balance && (
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-gray-400">
+                <span style={{ color: "var(--outline)" }}>
                   {fmtBal(balance.formatted)} {fromToken.symbol}
                 </span>
                 <button
                   onClick={handleMax}
-                  className="text-violet-500 hover:text-violet-600 font-semibold"
+                  className="font-bold"
+                  style={{ color: "var(--primary)" }}
                 >
                   Max
                 </button>
@@ -471,7 +476,7 @@ export function ZapBox() {
 
         {/* ── Arrow divider ── */}
         <div className="flex justify-center -my-2.5 relative z-10">
-          <div className="h-9 w-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400">
+          <div className="h-9 w-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "var(--surface-container-low)", color: "var(--outline)" }}>
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
@@ -479,8 +484,8 @@ export function ZapBox() {
         </div>
 
         {/* ── INTO section ── */}
-        <div className="p-5 pt-3 border-t border-gray-100">
-          <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+        <div className="p-5 pt-3" style={{ borderTop: "1px solid var(--surface-container-high)" }}>
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--outline)" }}>
             Deposit into
           </label>
           <div className="mt-2">
@@ -493,10 +498,13 @@ export function ZapBox() {
             />
           </div>
           {vault && isCrossChain && (
-            <p className="text-xs text-amber-500 mt-2 flex items-center gap-1">
+            <p className="text-xs mt-2 flex items-center gap-1" style={{ color: "#d97706" }}>
               <span>&#x26A1;</span>
-              Cross-chain: {CHAIN_BY_ID[fromChainId]?.name} &rarr;{" "}
-              {vault.chain.charAt(0).toUpperCase() + vault.chain.slice(1)}
+              Cross-chain:{" "}
+              <ChainDot chain={CHAIN_BY_ID[fromChainId]?.network ?? ""} size={14} />
+              {" "}{CHAIN_BY_ID[fromChainId]?.name} &rarr;{" "}
+              <ChainDot chain={vault.chain} size={14} />
+              {" "}{vault.chain.charAt(0).toUpperCase() + vault.chain.slice(1)}
             </p>
           )}
         </div>
@@ -507,7 +515,8 @@ export function ZapBox() {
           {!isConnected && (
             <button
               onClick={() => openConnectModal?.()}
-              className="w-full rounded-xl bg-violet-600 hover:bg-violet-500 py-3.5 text-sm font-semibold text-white transition-colors"
+              className="w-full rounded-full py-3.5 text-sm font-bold text-white transition-all hover:opacity-90 shadow-lg shadow-purple-500/20"
+              style={{ background: "linear-gradient(135deg, #630ed4, #7c3aed)" }}
             >
               Connect Wallet
             </button>
@@ -518,7 +527,8 @@ export function ZapBox() {
             <button
               onClick={handleGetQuote}
               disabled={!canQuote}
-              className="w-full rounded-xl bg-violet-600 hover:bg-violet-500 disabled:bg-gray-200 disabled:text-gray-400 py-3.5 text-sm font-semibold text-white transition-colors"
+              className="w-full rounded-full py-3.5 text-sm font-bold text-white transition-all disabled:opacity-40"
+              style={canQuote ? { background: "linear-gradient(135deg, #630ed4, #7c3aed)", boxShadow: "0 4px 16px rgba(99, 14, 212, 0.2)" } : { backgroundColor: "var(--surface-container-high)", color: "var(--outline)" }}
             >
               {!vault
                 ? "Select a vault"
@@ -532,7 +542,8 @@ export function ZapBox() {
           {step === "quoting" && (
             <button
               disabled
-              className="w-full rounded-xl bg-gray-200 py-3.5 text-sm font-semibold text-gray-500 flex items-center justify-center gap-2"
+              className="w-full rounded-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2"
+              style={{ backgroundColor: "var(--surface-container-high)", color: "var(--on-surface-variant)" }}
             >
               <Spinner /> Getting quote...
             </button>
@@ -541,41 +552,41 @@ export function ZapBox() {
           {/* Quoted */}
           {step === "quoted" && quote && (
             <>
-              <div className="rounded-xl bg-gray-50 border border-gray-100 p-3 space-y-2 text-sm">
+              <div className="rounded-2xl p-4 space-y-2 text-sm" style={{ backgroundColor: "var(--surface-container-low)" }}>
                 {/* Route */}
                 {quote.routeSteps.length > 0 && (
                   <div className="flex items-center gap-1 text-xs flex-wrap">
-                    <span className="text-gray-400">Route:</span>
-                    <span className="text-gray-700 font-medium">{fromToken.symbol}</span>
+                    <span style={{ color: "var(--outline)" }}>Route:</span>
+                    <span className="font-semibold" style={{ color: "var(--on-surface)" }}>{fromToken.symbol}</span>
                     {quote.routeSteps.map((s, i) => (
                       <span key={i} className="contents">
-                        <span className="text-gray-300">&rarr;</span>
-                        <span className="text-gray-500">
+                        <span style={{ color: "var(--outline-variant)" }}>&rarr;</span>
+                        <span style={{ color: "var(--on-surface-variant)" }}>
                           {s.type === "swap" ? "Swap" : s.type === "cross" ? "Bridge" : s.type}
                           {s.toolName ? ` (${s.toolName})` : ""}
                         </span>
-                        <span className="text-gray-300">&rarr;</span>
-                        <span className="text-gray-700">{s.toSymbol}</span>
+                        <span style={{ color: "var(--outline-variant)" }}>&rarr;</span>
+                        <span style={{ color: "var(--on-surface)" }}>{s.toSymbol}</span>
                       </span>
                     ))}
-                    <span className="text-gray-300">&rarr;</span>
-                    <span className="text-violet-600 font-medium">Vault</span>
+                    <span style={{ color: "var(--outline-variant)" }}>&rarr;</span>
+                    <span className="font-semibold" style={{ color: "var(--primary)" }}>Vault</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-gray-400">You receive</span>
-                  <span className="text-gray-900 font-medium">
+                  <span style={{ color: "var(--on-surface-variant)" }}>You receive</span>
+                  <span className="font-semibold tabular-nums" style={{ color: "var(--on-surface)" }}>
                     ~{fmtTokenAmt(quote.toAmount, quote.toTokenDecimals)} {quote.toTokenSymbol}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Gas cost</span>
-                  <span className="text-gray-700">~${quote.gasCostUSD}</span>
+                  <span style={{ color: "var(--on-surface-variant)" }}>Gas cost</span>
+                  <span className="tabular-nums" style={{ color: "var(--on-surface)" }}>~${quote.gasCostUSD}</span>
                 </div>
                 {quote.executionTime != null && quote.executionTime > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Est. time</span>
-                    <span className="text-gray-700">
+                    <span style={{ color: "var(--on-surface-variant)" }}>Est. time</span>
+                    <span style={{ color: "var(--on-surface)" }}>
                       {quote.executionTime < 60
                         ? `~${quote.executionTime}s`
                         : `~${Math.ceil(quote.executionTime / 60)} min`}
@@ -586,7 +597,8 @@ export function ZapBox() {
 
               <button
                 onClick={handleDeposit}
-                className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 py-3.5 text-sm font-semibold text-white transition-colors"
+                className="w-full rounded-full py-3.5 text-sm font-bold text-white transition-all hover:opacity-90"
+                style={{ backgroundColor: "var(--secondary)", boxShadow: "0 4px 16px rgba(0, 108, 81, 0.2)" }}
               >
                 Confirm Deposit
               </button>
@@ -594,12 +606,13 @@ export function ZapBox() {
               {quoteAge >= 60 ? (
                 <button
                   onClick={() => { setQuote(null); handleGetQuote(); }}
-                  className="w-full text-center text-xs text-amber-500 hover:text-amber-400"
+                  className="w-full text-center text-xs"
+                  style={{ color: "#d97706" }}
                 >
-                  Quote expired — click to refresh
+                  Quote expired -- click to refresh
                 </button>
               ) : (
-                <p className="text-center text-[11px] text-gray-400">
+                <p className="text-center text-[11px]" style={{ color: "var(--outline)" }}>
                   Quote valid for {60 - quoteAge}s
                 </p>
               )}
@@ -610,8 +623,8 @@ export function ZapBox() {
           {step === "approving" && (
             <div className="flex flex-col items-center gap-2 py-4">
               <Spinner />
-              <p className="text-sm text-gray-600">Approving token...</p>
-              <p className="text-xs text-gray-400">Confirm in your wallet</p>
+              <p className="text-sm font-medium" style={{ color: "var(--on-surface-variant)" }}>Approving token...</p>
+              <p className="text-xs" style={{ color: "var(--outline)" }}>Confirm in your wallet</p>
             </div>
           )}
 
@@ -619,7 +632,7 @@ export function ZapBox() {
           {step === "signing" && (
             <div className="flex flex-col items-center gap-2 py-4">
               <Spinner />
-              <p className="text-sm text-gray-600">Confirm in your wallet...</p>
+              <p className="text-sm font-medium" style={{ color: "var(--on-surface-variant)" }}>Confirm in your wallet...</p>
             </div>
           )}
 
@@ -627,9 +640,9 @@ export function ZapBox() {
           {step === "pending" && (
             <div className="flex flex-col items-center gap-2 py-4">
               <Spinner />
-              <p className="text-sm text-gray-600">Confirming transaction...</p>
+              <p className="text-sm font-medium" style={{ color: "var(--on-surface-variant)" }}>Confirming transaction...</p>
               {explorerUrl && (
-                <a href={explorerUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-violet-500 hover:text-violet-600 underline">
+                <a href={explorerUrl} target="_blank" rel="noopener noreferrer" className="text-xs underline" style={{ color: "var(--primary)" }}>
                   View on explorer
                 </a>
               )}
@@ -639,16 +652,16 @@ export function ZapBox() {
           {/* Confirmed */}
           {step === "confirmed" && (
             <div className="flex flex-col items-center gap-3 py-4">
-              <div className="h-12 w-12 rounded-full bg-emerald-50 flex items-center justify-center text-2xl text-emerald-500">
+              <div className="h-12 w-12 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: "var(--secondary-container)", color: "var(--on-secondary-container)" }}>
                 &#x2713;
               </div>
-              <p className="text-sm font-semibold text-gray-900">Deposit confirmed!</p>
+              <p className="text-sm font-bold" style={{ color: "var(--on-surface)" }}>Deposit confirmed!</p>
               {explorerUrl && (
-                <a href={explorerUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-violet-500 hover:text-violet-600 underline">
+                <a href={explorerUrl} target="_blank" rel="noopener noreferrer" className="text-xs underline" style={{ color: "var(--primary)" }}>
                   View on explorer
                 </a>
               )}
-              <button onClick={handleReset} className="text-xs text-gray-400 hover:text-gray-600">
+              <button onClick={handleReset} className="text-xs transition-colors hover:opacity-80" style={{ color: "var(--outline)" }}>
                 Make another deposit
               </button>
             </div>
@@ -657,12 +670,13 @@ export function ZapBox() {
           {/* Error */}
           {step === "error" && (
             <>
-              <div className="rounded-xl bg-red-50 border border-red-100 p-3">
-                <p className="text-sm text-red-600">{error || "Something went wrong"}</p>
+              <div className="rounded-2xl p-3" style={{ backgroundColor: "var(--error-container)" }}>
+                <p className="text-sm" style={{ color: "var(--error)" }}>{error || "Something went wrong"}</p>
               </div>
               <button
                 onClick={handleReset}
-                className="w-full rounded-xl border border-gray-200 py-3 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                className="w-full rounded-full py-3 text-sm transition-colors"
+                style={{ backgroundColor: "var(--surface-container-high)", color: "var(--on-surface-variant)" }}
               >
                 Try again
               </button>
@@ -671,7 +685,7 @@ export function ZapBox() {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-100 text-[10px] text-gray-300 text-center">
+        <div className="px-5 py-3 text-[10px] text-center" style={{ borderTop: "1px solid var(--surface-container-high)", color: "var(--outline)" }}>
           Powered by LI.FI Composer
         </div>
       </div>

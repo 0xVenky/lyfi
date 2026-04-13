@@ -14,9 +14,9 @@ const TVL_OPTIONS = [
 
 const APY_OPTIONS = [
   { label: "Any APY", value: "" },
-  { label: "0–10%", min: "0", max: "10" },
-  { label: "10–50%", min: "10", max: "50" },
-  { label: "50–100%", min: "50", max: "100" },
+  { label: "0-10%", min: "0", max: "10" },
+  { label: "10-50%", min: "10", max: "50" },
+  { label: "50-100%", min: "50", max: "100" },
   { label: "100%+", min: "100", max: "" },
 ];
 
@@ -88,23 +88,22 @@ export function FilterBar() {
     ([k]) => !["view", "page", "limit"].includes(k),
   ).length;
 
-  const chipBase =
-    "inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-sm transition-all cursor-pointer";
-  const chipDefault =
-    "border-gray-200 bg-white text-gray-600 hover:border-violet-200 hover:text-violet-700 focus:border-violet-300";
+  const selectStyle = {
+    backgroundColor: "var(--surface-container-high)",
+    color: "var(--on-surface-variant)",
+  };
 
   return (
-    <div className="px-4 sm:px-6 py-3 border-b border-gray-100 space-y-3">
+    <div className="px-6 sm:px-8 py-3 space-y-3">
       {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors md:hidden"
+        className="flex items-center gap-2 text-sm font-medium transition-colors md:hidden"
+        style={{ color: "var(--on-surface-variant)" }}
         aria-expanded={mobileOpen}
         aria-controls="filter-panel"
       >
-        <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
+        <span className="material-symbols-outlined text-[18px]">filter_list</span>
         Filters{activeCount > 0 ? ` (${activeCount})` : ""}
       </button>
 
@@ -115,33 +114,32 @@ export function FilterBar() {
       >
         {/* Search */}
         <div className="relative">
-          <svg
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-zinc-500"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
+          <span
+            className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px]"
+            style={{ color: "var(--outline)" }}
           >
-            <path
-              fillRule="evenodd"
-              d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-              clipRule="evenodd"
-            />
-          </svg>
+            search
+          </span>
           <input
             type="text"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search vaults..."
-            className="pl-8 pr-3 py-1.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-100 w-48"
+            className="pl-10 pr-4 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 w-52 border-none"
+            style={{
+              backgroundColor: "var(--surface-container-lowest)",
+              color: "var(--on-surface)",
+            }}
             aria-label="Search vaults"
           />
         </div>
 
-        {/* Chain chip select */}
+        {/* Chain */}
         <select
           value={searchParams.get("chain") ?? ""}
           onChange={(e) => setParam("chain", e.target.value)}
-          className={`${chipBase} ${chipDefault}`}
+          className="px-4 py-2 rounded-full text-sm font-medium border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+          style={selectStyle}
           aria-label="Filter by chain"
         >
           <option value="">All Chains</option>
@@ -152,11 +150,12 @@ export function FilterBar() {
           ))}
         </select>
 
-        {/* Protocol chip select */}
+        {/* Protocol */}
         <select
           value={searchParams.get("protocol") ?? ""}
           onChange={(e) => setParam("protocol", e.target.value)}
-          className={`${chipBase} ${chipDefault}`}
+          className="px-4 py-2 rounded-full text-sm font-medium border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+          style={selectStyle}
           aria-label="Filter by protocol"
         >
           <option value="">All Protocols</option>
@@ -167,11 +166,12 @@ export function FilterBar() {
           ))}
         </select>
 
-        {/* Type chip select */}
+        {/* Type */}
         <select
           value={searchParams.get("pool_type") ?? ""}
           onChange={(e) => setParam("pool_type", e.target.value)}
-          className={`${chipBase} ${chipDefault}`}
+          className="px-4 py-2 rounded-full text-sm font-medium border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+          style={selectStyle}
           aria-label="Filter by type"
         >
           {TYPE_OPTIONS.map((o) => (
@@ -181,11 +181,12 @@ export function FilterBar() {
           ))}
         </select>
 
-        {/* TVL chip select */}
+        {/* TVL */}
         <select
           value={searchParams.get("min_tvl") ?? ""}
           onChange={(e) => setParam("min_tvl", e.target.value)}
-          className={`${chipBase} ${chipDefault}`}
+          className="px-4 py-2 rounded-full text-sm font-medium border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+          style={selectStyle}
           aria-label="Filter by TVL"
         >
           {TVL_OPTIONS.map((o) => (
@@ -195,7 +196,7 @@ export function FilterBar() {
           ))}
         </select>
 
-        {/* APR range chip select */}
+        {/* APY range */}
         <select
           value={
             searchParams.get("min_apr") && searchParams.get("max_apr")
@@ -216,7 +217,8 @@ export function FilterBar() {
               if (match) setAprRange(match);
             }
           }}
-          className={`${chipBase} ${chipDefault}`}
+          className="px-4 py-2 rounded-full text-sm font-medium border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+          style={selectStyle}
           aria-label="Filter by APY range"
         >
           <option value="">Any APY</option>
@@ -230,7 +232,8 @@ export function FilterBar() {
         {activeCount > 0 && (
           <button
             onClick={clearAll}
-            className="text-xs text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors"
+            className="text-xs font-semibold transition-colors hover:opacity-80"
+            style={{ color: "var(--primary)" }}
           >
             Clear ({activeCount})
           </button>
