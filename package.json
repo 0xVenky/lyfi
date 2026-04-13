@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "snapshot-agent": "mkdir -p public/agent-data && cp agent/data/portfolio.json agent/data/activity-log.json public/agent-data/"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.87.0",

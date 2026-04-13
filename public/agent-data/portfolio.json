@@ -1,0 +1,72 @@
+{
+  "starting_capital_usd": 1000000,
+  "started_at": "2026-04-10T15:33:59.475Z",
+  "positions": [
+    {
+      "vault_slug": "1-0xa8875aaebc4f830524e35d57f9772ffacbdd6c45",
+      "vault_name": "GTUSDCRWA",
+      "protocol": "morpho-v1",
+      "protocol_url": "https://app.morpho.org/ethereum/vault/0xA8875aaeBc4f830524e35d57F9772FfAcbdD6C45",
+      "chain": "ethereum",
+      "chain_id": 1,
+      "deposited_at": "2026-04-13T13:26:35.626Z",
+      "deposit_amount_usd": 420573.933440246,
+      "entry_apy": 9.02,
+      "current_apy": 8.53,
+      "simulated_earnings_usd": 3.870781143126215,
+      "current_value_usd": 420577.8042213891,
+      "last_updated_at": "2026-04-13T14:21:34.879Z"
+    },
+    {
+      "vault_slug": "1-0xa8875aaebc4f830524e35d57f9772ffacbdd6c45",
+      "vault_name": "GTUSDCRWA",
+      "protocol": "morpho-v1",
+      "protocol_url": "https://app.morpho.org/ethereum/vault/0xA8875aaeBc4f830524e35d57F9772FfAcbdD6C45",
+      "chain": "ethereum",
+      "chain_id": 1,
+      "deposited_at": "2026-04-13T13:26:35.627Z",
+      "deposit_amount_usd": 300154.67924979195,
+      "entry_apy": 9.02,
+      "current_apy": 8.53,
+      "simulated_earnings_usd": 2.762493390609948,
+      "current_value_usd": 300157.44174318254,
+      "last_updated_at": "2026-04-13T14:21:34.879Z"
+    },
+    {
+      "vault_slug": "1-0xa8875aaebc4f830524e35d57f9772ffacbdd6c45",
+      "vault_name": "GTUSDCRWA",
+      "protocol": "morpho-v1",
+      "protocol_url": "https://app.morpho.org/ethereum/vault/0xA8875aaeBc4f830524e35d57F9772FfAcbdD6C45",
+      "chain": "ethereum",
+      "chain_id": 1,
+      "deposited_at": "2026-04-13T13:26:35.627Z",
+      "deposit_amount_usd": 200075.45134783196,
+      "entry_apy": 9.02,
+      "current_apy": 8.53,
+      "simulated_earnings_usd": 1.8414076147442606,
+      "current_value_usd": 200077.2927554467,
+      "last_updated_at": "2026-04-13T14:21:34.879Z"
+    },
+    {
+      "vault_slug": "1-0xa8875aaebc4f830524e35d57f9772ffacbdd6c45",
+      "vault_name": "GTUSDCRWA",
+      "protocol": "morpho-v1",
+      "protocol_url": "https://app.morpho.org/ethereum/vault/0xA8875aaeBc4f830524e35d57F9772FfAcbdD6C45",
+      "chain": "ethereum",
+      "chain_id": 1,
+      "deposited_at": "2026-04-13T13:26:35.627Z",
+      "deposit_amount_usd": 99996.09020563475,
+      "entry_apy": 9.02,
+      "current_apy": 8.53,
+      "simulated_earnings_usd": 0.9203206125932605,
+      "current_value_usd": 99997.01052624735,
+      "last_updated_at": "2026-04-13T14:21:34.879Z"
+    }
+  ],
+  "idle_usd": 0,
+  "total_value_usd": 1020809.5492462656,
+  "total_earnings_usd": 9.395002761073684,
+  "total_simulated_gas_usd": 339.14,
+  "total_rebalances": 163,
+  "total_checks": 530
+}
