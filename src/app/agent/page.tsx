@@ -260,7 +260,7 @@ export default function AgentDashboard() {
                   borderRadius: 8,
                   fontSize: 12,
                 }}
-                formatter={(value: number) => [`$${fmt(value)}`, "Value"]}
+                formatter={(value: unknown) => [`$${fmt(Number(value ?? 0))}`, "Value"]}
               />
               {rebalancePoints.map((t, i) => (
                 <ReferenceLine key={i} x={t} stroke="#f59e0b" strokeDasharray="3 3" strokeWidth={1} />
