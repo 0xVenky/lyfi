@@ -2,6 +2,7 @@
 export type TokenInfo = {
   address: string;
   symbol: string;
+  decimals: number;
   chain: string;
   is_stable: boolean;
   asset_class: string | null;
@@ -52,6 +53,11 @@ export type PoolListItem = {
     monthly_earnings_per_1k: number;
     yearly_earnings_per_1k: number;
   };
+  // LI.FI vault metadata for deposit flow
+  vault_address: string;
+  vault_chain_id: number;
+  is_transactional: boolean;
+  is_redeemable: boolean;
 };
 
 // Morpho vault allocation breakdown

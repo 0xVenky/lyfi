@@ -41,11 +41,12 @@ export function formatTvl(tvl: number): string {
 }
 
 /**
- * Format APR to 2 decimal places with % suffix.
+ * Format APY to 2 decimal places with % suffix.
+ * Field names say apr_* but values are APY per Decision H1.
  */
-export function formatApr(apr: number | null): string {
-  if (apr === null) return "—";
-  return `${apr.toFixed(2)}%`;
+export function formatApr(apy: number | null): string {
+  if (apy === null) return "—";
+  return `${apy.toFixed(2)}%`;
 }
 
 /**

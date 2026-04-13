@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "lyfi-earn": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "tsx",
+        "/Users/venky/Projects/Yeelds/lyfi/mcp/src/index.ts"
+      ],
+      "env": {}
+    }
+  }
+}

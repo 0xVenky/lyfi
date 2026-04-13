@@ -12,20 +12,18 @@ const TVL_OPTIONS = [
   { label: "$100M+", value: "100000000" },
 ];
 
-const APR_OPTIONS = [
-  { label: "Any APR", value: "" },
+const APY_OPTIONS = [
+  { label: "Any APY", value: "" },
   { label: "0–10%", min: "0", max: "10" },
   { label: "10–50%", min: "10", max: "50" },
   { label: "50–100%", min: "50", max: "100" },
   { label: "100%+", min: "100", max: "" },
 ];
 
-const ACTION_OPTIONS = [
-  { label: "All Actions", value: "" },
-  { label: "Lending", value: "lending" },
-  { label: "LP into AMM", value: "amm_lp" },
-  { label: "Vault", value: "vault" },
-  { label: "Staking", value: "staking" },
+const TYPE_OPTIONS = [
+  { label: "All Types", value: "" },
+  { label: "Vault (single asset)", value: "vault" },
+  { label: "LP (multi asset)", value: "amm_lp" },
 ];
 
 export function FilterBar() {
@@ -54,7 +52,7 @@ export function FilterBar() {
     router.push(qs ? `/?${qs}` : "/");
   }
 
-  function setAprRange(option: (typeof APR_OPTIONS)[number]) {
+  function setAprRange(option: (typeof APY_OPTIONS)[number]) {
     const params = new URLSearchParams(searchParams.toString());
     if ("min" in option && option.min) {
       params.set("min_apr", option.min);
@@ -68,12 +66,6 @@ export function FilterBar() {
     }
     params.delete("page");
     const qs = params.toString();
-    router.push(qs ? `/?${qs}` : "/");
-  }
-
-  function applyPreset(params: Record<string, string>) {
-    const sp = new URLSearchParams(params);
-    const qs = sp.toString();
     router.push(qs ? `/?${qs}` : "/");
   }
 
@@ -97,16 +89,16 @@ export function FilterBar() {
   ).length;
 
   const chipBase =
-    "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors cursor-pointer";
+    "inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-sm transition-all cursor-pointer";
   const chipDefault =
-    "border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-300 hover:border-gray-300 dark:hover:border-zinc-600";
+    "border-gray-200 bg-white text-gray-600 hover:border-violet-200 hover:text-violet-700 focus:border-violet-300";
 
   return (
-    <div className="px-4 sm:px-6 py-3 border-b border-gray-100 dark:border-zinc-800/50 space-y-3">
+    <div className="px-4 sm:px-6 py-3 border-b border-gray-100 space-y-3">
       {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="flex items-center gap-2 text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200 transition-colors md:hidden"
+        className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors md:hidden"
         aria-expanded={mobileOpen}
         aria-controls="filter-panel"
       >
@@ -139,9 +131,9 @@ export function FilterBar() {
             type="text"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Search pools..."
-            className="pl-8 pr-3 py-1.5 rounded-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm text-gray-900 dark:text-zinc-200 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-500 w-48"
-            aria-label="Search pools"
+            placeholder="Search vaults..."
+            className="pl-8 pr-3 py-1.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-100 w-48"
+            aria-label="Search vaults"
           />
         </div>
 
@@ -175,14 +167,14 @@ export function FilterBar() {
           ))}
         </select>
 
-        {/* Action chip select */}
+        {/* Type chip select */}
         <select
           value={searchParams.get("pool_type") ?? ""}
           onChange={(e) => setParam("pool_type", e.target.value)}
           className={`${chipBase} ${chipDefault}`}
-          aria-label="Filter by action"
+          aria-label="Filter by type"
         >
-          {ACTION_OPTIONS.map((o) => (
+          {TYPE_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>
@@ -217,7 +209,7 @@ export function FilterBar() {
             if (!val) {
               setAprRange({ label: "", value: "" });
             } else {
-              const match = APR_OPTIONS.find((o) => {
+              const match = APY_OPTIONS.find((o) => {
                 if (!("min" in o)) return false;
                 return `${o.min}-${o.max}` === val;
               });
@@ -225,33 +217,14 @@ export function FilterBar() {
             }
           }}
           className={`${chipBase} ${chipDefault}`}
-          aria-label="Filter by APR range"
+          aria-label="Filter by APY range"
         >
-          <option value="">Any APR</option>
-          {APR_OPTIONS.filter((o) => "min" in o).map((o) => (
+          <option value="">Any APY</option>
+          {APY_OPTIONS.filter((o) => "min" in o).map((o) => (
             <option key={o.label} value={`${"min" in o ? o.min : ""}-${"max" in o ? o.max : ""}`}>
               {o.label}
             </option>
           ))}
-        </select>
-
-        {/* Presets dropdown */}
-        <select
-          value=""
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val === "stablecoin_vaults") {
-              applyPreset({ exposure_category: "stablecoin", pool_type: "vault" });
-            } else if (val === "maximize_eth") {
-              applyPreset({ exposure: "ETH", sort: "apr_total", order: "desc" });
-            }
-          }}
-          className={`${chipBase} ${chipDefault} ml-auto`}
-          aria-label="Apply preset"
-        >
-          <option value="">Presets</option>
-          <option value="stablecoin_vaults">Stablecoin Vaults</option>
-          <option value="maximize_eth">Maximize ETH</option>
         </select>
 
         {activeCount > 0 && (

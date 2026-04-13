@@ -17,6 +17,7 @@ export type PoolQueryParams = {
   min_apr?: number;
   max_apr?: number;
   has_incentives?: boolean;
+  depositable?: boolean;
   view?: string;
   sort?: string;
   order: "asc" | "desc";
@@ -77,6 +78,7 @@ export function parsePoolParams(req: NextRequest): PoolQueryParams {
     min_apr: parsePositiveNumber(sp.get("min_apr")),
     max_apr: parsePositiveNumber(sp.get("max_apr")),
     has_incentives: sp.get("has_incentives") === "true" ? true : undefined,
+    depositable: sp.get("depositable") === "true" ? true : undefined,
     view: sp.get("view") ?? undefined,
     sort: sp.get("sort") ?? undefined,
     order: sp.get("order") === "asc" ? "asc" : "desc",

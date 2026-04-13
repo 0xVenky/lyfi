@@ -1,5 +1,6 @@
 import type { StatsResponse } from "@/lib/types";
 import { formatTvl } from "@/lib/utils";
+import { WalletButton } from "./WalletButton";
 
 export function Header({ stats }: { stats: StatsResponse }) {
   const refreshedAgo = stats.last_refreshed
@@ -7,21 +8,28 @@ export function Header({ stats }: { stats: StatsResponse }) {
     : null;
 
   return (
-    <div className="flex items-center justify-between px-4 sm:px-6 py-2 border-b border-gray-100 dark:border-zinc-800/50">
-      <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-zinc-500">
-        <span>{stats.total_pools} pools</span>
-        <span aria-hidden="true">&middot;</span>
-        <span>{formatTvl(stats.total_tvl_usd)} TVL</span>
-        <span aria-hidden="true">&middot;</span>
-        <span>{stats.chains_covered} chains</span>
-        {refreshedAgo && (
-          <>
-            <span aria-hidden="true">&middot;</span>
-            <span>Updated {refreshedAgo}</span>
-          </>
-        )}
+    <div className="px-4 sm:px-6 py-5 border-b border-gray-100">
+      <div className="flex items-start justify-between">
+        {/* Stats */}
+        <div className="flex items-center gap-8">
+          <Stat label="Total Vaults" value={String(stats.total_pools)} />
+          <Stat label="Total TVL" value={formatTvl(stats.total_tvl_usd)} />
+          <Stat label="Chains" value={String(stats.chains_covered)} />
+        </div>
+        <WalletButton />
       </div>
-      {/* Wallet button will go here */}
+      {refreshedAgo && (
+        <p className="text-[11px] text-gray-300 mt-2">Updated {refreshedAgo}</p>
+      )}
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">{label}</p>
+      <p className="text-xl font-semibold text-gray-900 mt-0.5">{value}</p>
     </div>
   );
 }

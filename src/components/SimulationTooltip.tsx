@@ -116,7 +116,7 @@ export function SimulationTooltip({
           </div>
 
           <p className="text-[10px] text-gray-400 dark:text-zinc-600 mt-2 leading-tight">
-            Estimates based on current APR. Actual returns may vary.
+            Estimates based on current APY. Actual returns may vary.
           </p>
         </div>
       )}

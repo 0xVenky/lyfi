@@ -30,7 +30,7 @@ export function SimulationCard({ pool }: { pool: PoolDetail }) {
         </div>
       </div>
       <p className="text-xs text-gray-400 dark:text-zinc-600 mt-4">
-        Estimates based on current APR. Actual returns may vary.
+        Estimates based on current APY. Actual returns may vary.
       </p>
     </div>
   );

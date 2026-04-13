@@ -32,6 +32,7 @@ export function filterPools(pools: PoolListItem[], params: PoolQueryParams): Poo
   if (params.min_apr) result = result.filter(p => p.yield.apr_total >= params.min_apr!);
   if (params.max_apr) result = result.filter(p => p.yield.apr_total <= params.max_apr!);
   if (params.has_incentives) result = result.filter(p => (p.yield.apr_reward ?? 0) > 0);
+  if (params.depositable) result = result.filter(p => p.is_transactional);
   if (params.exposure) {
     const symbol = params.exposure.toUpperCase();
     result = result.filter(p =>

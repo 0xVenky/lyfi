@@ -28,6 +28,7 @@ export async function queryPools(
   const min_apr = params.min_apr ? parseFloat(params.min_apr) : undefined;
   const max_apr = params.max_apr ? parseFloat(params.max_apr) : undefined;
   const has_incentives = params.has_incentives === "true" ? true : undefined;
+  const depositable = params.depositable === "true" ? true : undefined;
   const search = params.search;
   const view = params.view;
   const sort = params.sort ?? "tvl_usd";
@@ -38,7 +39,7 @@ export async function queryPools(
   pools = filterPools(pools, {
     search, chain, pool_type, protocol, exposure, exposure_category,
     asset_class, yield_source, yield_bearing,
-    min_tvl, min_apr, max_apr, has_incentives,
+    min_tvl, min_apr, max_apr, has_incentives, depositable,
     order, page, limit,
   });
 

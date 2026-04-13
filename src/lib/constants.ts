@@ -3,23 +3,23 @@ export const YIELD_UNIT = "APY" as const;
 
 // LI.FI Earn supported chains (17 chains)
 export const SUPPORTED_CHAINS = [
-  { chainId: 1, name: "Ethereum", network: "ethereum", color: "#627EEA" },
-  { chainId: 10, name: "Optimism", network: "optimism", color: "#FF0420" },
-  { chainId: 56, name: "BSC", network: "bsc", color: "#F0B90B" },
-  { chainId: 100, name: "Gnosis", network: "gnosis", color: "#04795B" },
-  { chainId: 130, name: "Unichain", network: "unichain", color: "#FF007A" },
-  { chainId: 137, name: "Polygon", network: "polygon", color: "#8247E5" },
-  { chainId: 143, name: "Monad", network: "monad", color: "#836EF9" },
-  { chainId: 146, name: "Sonic", network: "sonic", color: "#5B6DEF" },
-  { chainId: 5000, name: "Mantle", network: "mantle", color: "#000000" },
-  { chainId: 8453, name: "Base", network: "base", color: "#0052FF" },
-  { chainId: 42161, name: "Arbitrum", network: "arbitrum", color: "#12AAFF" },
-  { chainId: 42220, name: "Celo", network: "celo", color: "#FCFF52" },
-  { chainId: 43114, name: "Avalanche", network: "avalanche", color: "#E84142" },
-  { chainId: 59144, name: "Linea", network: "linea", color: "#61DFFF" },
-  { chainId: 80094, name: "Berachain", network: "berachain", color: "#CC7722" },
-  { chainId: 534352, name: "Scroll", network: "scroll", color: "#FFEEDA" },
-  { chainId: 747474, name: "Katana", network: "katana", color: "#FF4444" },
+  { chainId: 1, name: "Ethereum", network: "ethereum", color: "#627EEA", explorer: "https://etherscan.io" },
+  { chainId: 10, name: "Optimism", network: "optimism", color: "#FF0420", explorer: "https://optimistic.etherscan.io" },
+  { chainId: 56, name: "BSC", network: "bsc", color: "#F0B90B", explorer: "https://bscscan.com" },
+  { chainId: 100, name: "Gnosis", network: "gnosis", color: "#04795B", explorer: "https://gnosisscan.io" },
+  { chainId: 130, name: "Unichain", network: "unichain", color: "#FF007A", explorer: "https://unichain.blockscout.com" },
+  { chainId: 137, name: "Polygon", network: "polygon", color: "#8247E5", explorer: "https://polygonscan.com" },
+  { chainId: 143, name: "Monad", network: "monad", color: "#836EF9", explorer: "https://explorer.monad.xyz" },
+  { chainId: 146, name: "Sonic", network: "sonic", color: "#5B6DEF", explorer: "https://sonicscan.org" },
+  { chainId: 5000, name: "Mantle", network: "mantle", color: "#000000", explorer: "https://mantlescan.xyz" },
+  { chainId: 8453, name: "Base", network: "base", color: "#0052FF", explorer: "https://basescan.org" },
+  { chainId: 42161, name: "Arbitrum", network: "arbitrum", color: "#12AAFF", explorer: "https://arbiscan.io" },
+  { chainId: 42220, name: "Celo", network: "celo", color: "#FCFF52", explorer: "https://celoscan.io" },
+  { chainId: 43114, name: "Avalanche", network: "avalanche", color: "#E84142", explorer: "https://snowtrace.io" },
+  { chainId: 59144, name: "Linea", network: "linea", color: "#61DFFF", explorer: "https://lineascan.build" },
+  { chainId: 80094, name: "Berachain", network: "berachain", color: "#CC7722", explorer: "https://berascan.com" },
+  { chainId: 534352, name: "Scroll", network: "scroll", color: "#FFEEDA", explorer: "https://scrollscan.com" },
+  { chainId: 747474, name: "Katana", network: "katana", color: "#FF4444", explorer: "https://katana.blockscout.com" },
 ] as const;
 
 export type ChainInfo = (typeof SUPPORTED_CHAINS)[number];
@@ -46,3 +46,76 @@ export const YIELD_SOURCE_TYPES = [
 ] as const;
 
 export type YieldSourceType = (typeof YIELD_SOURCE_TYPES)[number];
+
+// Native token zero address (used by LI.FI Composer for native gas tokens)
+export const NATIVE_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
+
+export type CommonToken = {
+  address: string;
+  symbol: string;
+  decimals: number;
+};
+
+// Native gas tokens per chain
+export const NATIVE_TOKENS: Record<number, CommonToken> = {
+  1:      { address: NATIVE_TOKEN_ADDRESS, symbol: "ETH",  decimals: 18 },
+  10:     { address: NATIVE_TOKEN_ADDRESS, symbol: "ETH",  decimals: 18 },
+  56:     { address: NATIVE_TOKEN_ADDRESS, symbol: "BNB",  decimals: 18 },
+  100:    { address: NATIVE_TOKEN_ADDRESS, symbol: "xDAI", decimals: 18 },
+  130:    { address: NATIVE_TOKEN_ADDRESS, symbol: "ETH",  decimals: 18 },
+  137:    { address: NATIVE_TOKEN_ADDRESS, symbol: "POL",  decimals: 18 },
+  143:    { address: NATIVE_TOKEN_ADDRESS, symbol: "MON",  decimals: 18 },
+  146:    { address: NATIVE_TOKEN_ADDRESS, symbol: "S",    decimals: 18 },
+  5000:   { address: NATIVE_TOKEN_ADDRESS, symbol: "MNT",  decimals: 18 },
+  8453:   { address: NATIVE_TOKEN_ADDRESS, symbol: "ETH",  decimals: 18 },
+  42161:  { address: NATIVE_TOKEN_ADDRESS, symbol: "ETH",  decimals: 18 },
+  42220:  { address: NATIVE_TOKEN_ADDRESS, symbol: "CELO", decimals: 18 },
+  43114:  { address: NATIVE_TOKEN_ADDRESS, symbol: "AVAX", decimals: 18 },
+  59144:  { address: NATIVE_TOKEN_ADDRESS, symbol: "ETH",  decimals: 18 },
+  80094:  { address: NATIVE_TOKEN_ADDRESS, symbol: "BERA", decimals: 18 },
+  534352: { address: NATIVE_TOKEN_ADDRESS, symbol: "ETH",  decimals: 18 },
+  747474: { address: NATIVE_TOKEN_ADDRESS, symbol: "ETH",  decimals: 18 },
+};
+
+// Well-known ERC20 tokens per chain (for zap-in token selection)
+export const ERC20_TOKENS_BY_CHAIN: Record<number, CommonToken[]> = {
+  1: [
+    { address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", symbol: "USDC", decimals: 6 },
+    { address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", symbol: "USDT", decimals: 6 },
+    { address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", symbol: "WETH", decimals: 18 },
+    { address: "0x6B175474E89094C44Da98b954EedeAC495271d0F", symbol: "DAI",  decimals: 18 },
+  ],
+  10: [
+    { address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", symbol: "USDC", decimals: 6 },
+    { address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", symbol: "USDT", decimals: 6 },
+    { address: "0x4200000000000000000000000000000000000006", symbol: "WETH", decimals: 18 },
+  ],
+  56: [
+    { address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d", symbol: "USDC", decimals: 18 },
+    { address: "0x55d398326f99059fF775485246999027B3197955", symbol: "USDT", decimals: 18 },
+  ],
+  137: [
+    { address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", symbol: "USDC", decimals: 6 },
+    { address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", symbol: "USDT", decimals: 6 },
+    { address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619", symbol: "WETH", decimals: 18 },
+  ],
+  8453: [
+    { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", symbol: "USDC", decimals: 6 },
+    { address: "0x4200000000000000000000000000000000000006", symbol: "WETH", decimals: 18 },
+  ],
+  42161: [
+    { address: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", symbol: "USDC", decimals: 6 },
+    { address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", symbol: "USDT", decimals: 6 },
+    { address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", symbol: "WETH", decimals: 18 },
+  ],
+  43114: [
+    { address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", symbol: "USDC", decimals: 6 },
+    { address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7", symbol: "USDT", decimals: 6 },
+  ],
+  59144: [
+    { address: "0x176211869cA2b568f2A7D4EE941E073a821EE1ff", symbol: "USDC", decimals: 6 },
+  ],
+  534352: [
+    { address: "0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4", symbol: "USDC", decimals: 6 },
+  ],
+};
