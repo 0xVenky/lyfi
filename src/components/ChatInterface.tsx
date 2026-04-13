@@ -1,11 +1,28 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { ChatMessage } from "./ChatMessage";
 
 type Message = {
   role: "user" | "assistant";
   content: string;
+};
+
+type PortfolioInsight = {
+  token: string;
+  balanceUsd: number;
+  vault: string;
+  apr: number;
+  yearlyEarnings: number;
+  vaultId: string;
+};
+
+type PortfolioInsights = {
+  totalIdleUsd: number;
+  totalYearlyPotential: number;
+  insights: PortfolioInsight[];
+  updatedAt: number;
 };
 
 const SUGGESTED_PROMPTS = [
@@ -15,12 +32,42 @@ const SUGGESTED_PROMPTS = [
   "What's the safest stablecoin vault with highest TVL?",
 ];
 
+function fmtUsd(n: number): string {
+  return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function loadPortfolioInsights(): PortfolioInsights | null {
+  try {
+    const raw = localStorage.getItem("yeelds:portfolio-insights");
+    if (!raw) return null;
+    const data = JSON.parse(raw) as PortfolioInsights;
+    // Stale after 1 hour
+    if (Date.now() - data.updatedAt > 3600_000) return null;
+    if (!data.insights?.length) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function buildPortfolioContext(pi: PortfolioInsights): string {
+  const lines = pi.insights.map(
+    (i) => `- ${i.token}: ${fmtUsd(i.balanceUsd)} idle, best vault: ${i.vault} at ${i.apr.toFixed(1)}% APY (~${fmtUsd(i.yearlyEarnings)}/yr)`,
+  );
+  return `The user has ${fmtUsd(pi.totalIdleUsd)} in idle tokens that could earn ~${fmtUsd(pi.totalYearlyPotential)}/year:\n${lines.join("\n")}`;
+}
+
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [portfolioInsights, setPortfolioInsights] = useState<PortfolioInsights | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setPortfolioInsights(loadPortfolioInsights());
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -36,10 +83,14 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
+      const payload: { messages: Message[]; portfolioContext?: string } = { messages: newMessages };
+      if (portfolioInsights) {
+        payload.portfolioContext = buildPortfolioContext(portfolioInsights);
+      }
       const res = await fetch("/api/v1/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -118,6 +169,49 @@ export function ChatInterface() {
                   Powered by LI.FI Earn data.
                 </p>
               </div>
+
+              {/* Portfolio insight banner */}
+              {portfolioInsights && (
+                <div className="w-full max-w-lg rounded-2xl p-4" style={{ backgroundColor: "var(--primary-container)", boxShadow: "0 8px 40px rgba(25, 28, 30, 0.06)" }}>
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-full flex items-center justify-center text-sm shrink-0" style={{ backgroundColor: "var(--on-primary-container)" }}>
+                      &#x1F4A1;
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm" style={{ color: "var(--on-primary-container)" }}>
+                        You have{" "}
+                        <span className="font-semibold" style={{ color: "var(--on-primary)" }}>
+                          {fmtUsd(portfolioInsights.totalIdleUsd)}
+                        </span>{" "}
+                        in idle tokens that could earn{" "}
+                        <span className="font-semibold" style={{ color: "var(--on-primary)" }}>
+                          ~{fmtUsd(portfolioInsights.totalYearlyPotential)}/yr
+                        </span>
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {portfolioInsights.insights.slice(0, 3).map((ins) => (
+                          <button
+                            key={ins.vaultId}
+                            onClick={() => sendMessage(`Tell me about the ${ins.vault} vault for ${ins.token}`)}
+                            className="rounded-xl px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
+                            style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "var(--on-primary)" }}
+                          >
+                            {ins.token} &rarr; {ins.vault} {ins.apr.toFixed(1)}%
+                          </button>
+                        ))}
+                      </div>
+                      <Link
+                        href="/portfolio"
+                        className="inline-flex items-center gap-1 mt-2 text-xs transition-opacity hover:opacity-80"
+                        style={{ color: "var(--on-primary-container)" }}
+                      >
+                        View portfolio &rarr;
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
                 {SUGGESTED_PROMPTS.map((prompt) => (
                   <button

@@ -1,5 +1,6 @@
 import type { PoolDetail } from "@/lib/types";
 import { ChainDot, ChainBadge } from "@/components/ChainDot";
+import { formatProtocolName } from "@/lib/utils";
 
 export function VaultInfoCard({ pool }: { pool: PoolDetail }) {
   return (
@@ -64,6 +65,22 @@ export function VaultInfoCard({ pool }: { pool: PoolDetail }) {
             <dt style={{ color: "var(--on-surface-variant)" }}>7d Avg APY</dt>
             <dd className="tabular-nums font-medium" style={{ color: "var(--on-surface)" }}>
               {pool.yield.apr_base_7d.toFixed(2)}%
+            </dd>
+          </div>
+        )}
+        {pool.protocol_url && (
+          <div className="flex justify-between items-center">
+            <dt style={{ color: "var(--on-surface-variant)" }}>Vault</dt>
+            <dd>
+              <a
+                href={pool.protocol_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium hover:opacity-80 transition-opacity"
+                style={{ color: "var(--primary)" }}
+              >
+                View on {formatProtocolName(pool.protocol)} &#x2197;
+              </a>
             </dd>
           </div>
         )}

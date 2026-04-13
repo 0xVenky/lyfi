@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Chat service unavailable" }, { status: 500 });
   }
 
-  const body = (await req.json()) as { messages: ChatMessage[] };
+  const body = (await req.json()) as { messages: ChatMessage[]; portfolioContext?: string };
   if (!body.messages?.length) {
     return Response.json({ error: "No messages provided" }, { status: 400 });
   }
@@ -25,6 +25,12 @@ export async function POST(req: Request) {
   }
 
   const client = new Anthropic({ apiKey });
+
+  // Build system prompt, optionally enriched with portfolio context
+  let systemPrompt = SYSTEM_PROMPT;
+  if (body.portfolioContext) {
+    systemPrompt += `\n\n## User Portfolio Context\n${body.portfolioContext}\nMention these idle fund opportunities when relevant — the user may not know they have yield-eligible tokens sitting idle. Be specific about the tokens and suggested vaults.`;
+  }
 
   // Build message history for Anthropic API
   const messages: Anthropic.MessageParam[] = body.messages.map((m) => ({
@@ -45,7 +51,7 @@ export async function POST(req: Request) {
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4096,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       tools: TOOL_DEFINITIONS,
       messages: apiMessages,
     });

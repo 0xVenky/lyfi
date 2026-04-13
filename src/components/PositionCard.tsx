@@ -44,14 +44,14 @@ export function PositionCard({
   const network = chain?.network ?? "unknown";
 
   return (
-    <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/80 p-4 space-y-3">
+    <div className="rounded-2xl p-4 space-y-3" style={{ backgroundColor: "var(--surface-container-low)" }}>
       {/* Header: chain + protocol */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm">
           <ChainDot chain={network} />
-          <span className="text-zinc-400">{chainName}</span>
-          <span className="text-zinc-600">/</span>
-          <span className="text-zinc-300 font-medium">
+          <span style={{ color: "var(--on-surface-variant)" }}>{chainName}</span>
+          <span style={{ color: "var(--outline)" }}>/</span>
+          <span className="font-medium" style={{ color: "var(--on-surface)" }}>
             {formatProtocolName(position.protocolName)}
           </span>
         </div>
@@ -59,16 +59,16 @@ export function PositionCard({
 
       {/* Asset + balance */}
       <div>
-        <p className="text-2xl font-bold text-zinc-100">
+        <p className="text-2xl font-bold" style={{ color: "var(--on-surface)" }}>
           {formatBalance(position.balanceUsd)}
         </p>
-        <p className="text-sm text-zinc-500 mt-0.5">
+        <p className="text-sm mt-0.5" style={{ color: "var(--on-surface-variant)" }}>
           {position.balanceNative.toFixed(
             position.balanceNative >= 1 ? 4 : 6,
           )}{" "}
           {position.asset.symbol}
         </p>
-        <p className="text-xs text-zinc-600 mt-0.5">{position.asset.name}</p>
+        <p className="text-xs mt-0.5" style={{ color: "var(--outline)" }}>{position.asset.name}</p>
       </div>
 
       {/* Actions */}
@@ -76,7 +76,8 @@ export function PositionCard({
         {position.vaultSlug && (
           <Link
             href={`/pool/${position.vaultSlug}`}
-            className="flex-1 rounded-lg border border-zinc-700 px-3 py-2 text-center text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="flex-1 rounded-xl px-3 py-2 text-center text-sm transition-colors hover:opacity-80"
+            style={{ backgroundColor: "var(--surface-container-high)", color: "var(--on-surface-variant)" }}
           >
             View Vault
           </Link>
@@ -84,7 +85,8 @@ export function PositionCard({
         {position.vaultSlug && (
           <Link
             href={`/pool/${position.vaultSlug}?deposit=1`}
-            className="flex-1 rounded-lg bg-emerald-600/90 hover:bg-emerald-500 px-3 py-2 text-center text-sm font-medium text-white transition-colors"
+            className="flex-1 rounded-xl px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:opacity-90"
+            style={{ backgroundColor: "var(--secondary)" }}
           >
             Deposit More
           </Link>
@@ -92,7 +94,8 @@ export function PositionCard({
         {position.isRedeemable && onWithdraw && (
           <button
             onClick={() => onWithdraw(position)}
-            className="flex-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 px-3 py-2 text-sm text-zinc-300 transition-colors"
+            className="flex-1 rounded-xl px-3 py-2 text-sm transition-colors hover:opacity-80"
+            style={{ backgroundColor: "var(--surface-container-high)", color: "var(--on-surface-variant)" }}
           >
             Withdraw
           </button>

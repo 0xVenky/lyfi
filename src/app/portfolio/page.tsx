@@ -292,6 +292,32 @@ export default function PortfolioPage() {
     0,
   );
 
+  // --- Persist insights to localStorage for AI chat context ---
+  useEffect(() => {
+    if (insights.length > 0 && filteredBalances) {
+      try {
+        localStorage.setItem(
+          "yeelds:portfolio-insights",
+          JSON.stringify({
+            totalIdleUsd: filteredBalances.totalUsd,
+            totalYearlyPotential,
+            insights: insights.map((i) => ({
+              token: i.tokenSymbol,
+              balanceUsd: i.balanceUsd,
+              vault: i.vaultProtocol,
+              apr: i.apr,
+              yearlyEarnings: i.yearlyEarnings,
+              vaultId: i.vaultId,
+            })),
+            updatedAt: Date.now(),
+          }),
+        );
+      } catch {
+        // localStorage not available — skip
+      }
+    }
+  }, [insights, filteredBalances, totalYearlyPotential]);
+
   // --- Withdraw modal ---
   if (withdrawTarget) {
     return (
@@ -420,20 +446,20 @@ export default function PortfolioPage() {
           {/* ── Side-by-side cards ── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Card 1: Portfolio Value */}
-            <div className="rounded-xl border border-gray-200 bg-white p-5 flex flex-col">
+            <div className="rounded-2xl p-5 flex flex-col" style={{ backgroundColor: "var(--surface-container-lowest)", boxShadow: "0 8px 40px rgba(25, 28, 30, 0.06)" }}>
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <h2 className="text-xs font-semibold uppercase tracking-wider font-[family-name:var(--font-manrope)]" style={{ color: "var(--on-surface-variant)" }}>
                   Yield-Eligible Tokens
                 </h2>
                 {filteredBalances && (
-                  <span className="text-xl font-bold text-gray-900">
+                  <span className="text-xl font-bold" style={{ color: "var(--on-surface)" }}>
                     {fmtUsd(filteredBalances.totalUsd)}
                   </span>
                 )}
               </div>
 
               {(!filteredBalances || filteredBalances.chains.length === 0) && (
-                <p className="text-sm text-gray-400 py-4 text-center flex-1 flex items-center justify-center">
+                <p className="text-sm py-4 text-center flex-1 flex items-center justify-center" style={{ color: "var(--outline)" }}>
                   No yield-eligible tokens found
                 </p>
               )}
@@ -448,10 +474,10 @@ export default function PortfolioPage() {
                             CHAIN_BY_ID[chain.chainId]?.network ?? "ethereum"
                           }
                         />
-                        <span className="text-xs font-medium text-gray-500">
+                        <span className="text-xs font-medium" style={{ color: "var(--on-surface-variant)" }}>
                           {chain.name}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs" style={{ color: "var(--outline)" }}>
                           {fmtUsd(chain.totalUsd)}
                         </span>
                       </div>
@@ -462,14 +488,14 @@ export default function PortfolioPage() {
                             className="flex items-center justify-between text-sm"
                           >
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-gray-700">
+                              <span className="font-medium" style={{ color: "var(--on-surface)" }}>
                                 {token.symbol}
                               </span>
-                              <span className="text-xs text-gray-400">
+                              <span className="text-xs" style={{ color: "var(--outline)" }}>
                                 {fmtBal(token.balance)}
                               </span>
                             </div>
-                            <span className="text-gray-500">
+                            <span style={{ color: "var(--on-surface-variant)" }}>
                               {fmtUsd(token.balanceUsd)}
                             </span>
                           </div>
@@ -482,13 +508,13 @@ export default function PortfolioPage() {
             </div>
 
             {/* Card 2: Earning Yield */}
-            <div className="rounded-xl border border-gray-200 bg-white p-5 flex flex-col">
+            <div className="rounded-2xl p-5 flex flex-col" style={{ backgroundColor: "var(--surface-container-lowest)", boxShadow: "0 8px 40px rgba(25, 28, 30, 0.06)" }}>
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <h2 className="text-xs font-semibold uppercase tracking-wider font-[family-name:var(--font-manrope)]" style={{ color: "var(--on-surface-variant)" }}>
                   Earning Yield
                 </h2>
                 {positions.length > 0 && (
-                  <span className="text-xl font-bold text-gray-900">
+                  <span className="text-xl font-bold" style={{ color: "var(--on-surface)" }}>
                     {fmtUsd(
                       positions.reduce((s, p) => s + p.balanceUsd, 0),
                     )}
@@ -498,12 +524,12 @@ export default function PortfolioPage() {
 
               {positions.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center py-6 text-center">
-                  <p className="text-sm text-gray-400 mb-3">
+                  <p className="text-sm mb-3" style={{ color: "var(--outline)" }}>
                     No vault positions
                   </p>
                   <Link
                     href="/zap"
-                    className="rounded-lg bg-violet-600 hover:bg-violet-500 px-4 py-2 text-xs font-medium text-white transition-colors"
+                    className="rounded-full gradient-primary hover:opacity-90 px-5 py-2 text-xs font-medium text-white transition-opacity"
                   >
                     Start earning &rarr;
                   </Link>
@@ -528,19 +554,19 @@ export default function PortfolioPage() {
 
           {/* ── AI Yield Insight ── */}
           {insights.length > 0 && (
-            <div className="rounded-xl border border-violet-200 bg-gradient-to-r from-violet-50 to-white p-5">
+            <div className="rounded-2xl p-5" style={{ backgroundColor: "var(--primary-container)", boxShadow: "0 8px 40px rgba(25, 28, 30, 0.06)" }}>
               <div className="flex items-start gap-3">
-                <div className="h-9 w-9 rounded-full bg-violet-100 flex items-center justify-center text-lg shrink-0">
+                <div className="h-9 w-9 rounded-full flex items-center justify-center text-lg shrink-0" style={{ backgroundColor: "var(--on-primary-container)" }}>
                   &#x1F4A1;
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-gray-900">
+                  <h3 className="text-sm font-bold font-[family-name:var(--font-manrope)]" style={{ color: "var(--on-primary)" }}>
                     Yield Opportunity
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm mt-1" style={{ color: "var(--on-primary-container)" }}>
                     {fmtUsd(filteredBalances?.totalUsd ?? 0)} in idle tokens could
                     earn{" "}
-                    <span className="font-semibold text-violet-700">
+                    <span className="font-semibold" style={{ color: "var(--on-primary)" }}>
                       ~{fmtUsd(totalYearlyPotential)}/year
                     </span>{" "}
                     at current rates.
@@ -551,25 +577,26 @@ export default function PortfolioPage() {
                       <Link
                         key={ins.vaultId}
                         href={`/pool/${ins.vaultId}?deposit=1`}
-                        className="flex items-center justify-between rounded-lg bg-white/60 border border-violet-100 px-3 py-2 hover:bg-white transition-colors group"
+                        className="flex items-center justify-between rounded-xl px-3 py-2 transition-opacity hover:opacity-80 group"
+                        style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
                       >
                         <div className="text-sm">
-                          <span className="font-medium text-gray-700">
+                          <span className="font-medium" style={{ color: "var(--on-primary)" }}>
                             {ins.tokenSymbol}
                           </span>
-                          <span className="text-gray-400 mx-1.5">&rarr;</span>
-                          <span className="text-gray-600">
+                          <span className="mx-1.5" style={{ color: "var(--on-primary-container)" }}>&rarr;</span>
+                          <span style={{ color: "var(--on-primary-container)" }}>
                             {fmtProtocol(ins.vaultProtocol)}{" "}
-                            <span className="text-violet-600 font-medium">
+                            <span className="font-medium" style={{ color: "var(--secondary-container)" }}>
                               {fmtApr(ins.apr)}
                             </span>
                           </span>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="text-xs text-emerald-600 font-medium">
+                          <span className="text-xs font-medium" style={{ color: "var(--secondary-container)" }}>
                             +{fmtUsd(ins.yearlyEarnings)}/yr
                           </span>
-                          <span className="text-gray-300 ml-2 group-hover:text-violet-400 transition-colors">
+                          <span className="ml-2 transition-opacity group-hover:opacity-100 opacity-60" style={{ color: "var(--on-primary-container)" }}>
                             &rarr;
                           </span>
                         </div>
@@ -579,7 +606,8 @@ export default function PortfolioPage() {
 
                   <Link
                     href="/zap"
-                    className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-violet-600 hover:text-violet-700"
+                    className="inline-flex items-center gap-1 mt-3 text-xs font-medium transition-opacity hover:opacity-80"
+                    style={{ color: "var(--on-primary)" }}
                   >
                     Zap into vaults &rarr;
                   </Link>

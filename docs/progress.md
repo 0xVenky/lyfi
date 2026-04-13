@@ -49,6 +49,17 @@ MOD   src/lib/lifi/normalize.ts              — safeProtocolUrl() validation (F
 - **Node.js 25 has broken global `localStorage`** — object exists but `getItem` is undefined. RainbowKit accesses it during SSR. Fixed with `dynamic(..., { ssr: false })` wrapper.
 - **RainbowKit is v2.2** (not 4.4 as originally planned) — v4.4 doesn't exist. wagmi is v3.6.
 
+### Post-Hackathon — Apr 13: Atelier Design System
+
+| Step | What | Status |
+|------|------|--------|
+| 21 | Atelier design system — full visual redesign (26 files: globals.css, layout, Sidebar, Header, page.tsx, VaultRow, FilterBar, PoolTable, all pool-detail cards, Pagination, DisclaimerBanner, ThemeToggle, ChainSelect, TokenSelect, VaultSelect, ZapBox, DepositFlow) | Done |
+| 22 | Chain logos — ChainDot shows actual logos from smold.app CDN, ChainBadge component, applied everywhere | Done |
+| 23 | Pool detail restructure — DepositFlow centered as hero, pool name + APY + chain centered above | Done |
+| 24 | DepositFlow enhancements — USD equivalents in quote, route hidden, vault link to protocol UI (deep links from LI.FI `protocol.url`) | Done |
+
+**Design system:** Light-first theme. Purple primary (#630ed4) + mint secondary (#00D1A0). Manrope headlines + Inter body. Tonal surface layering (no borders). 2rem card rounding. Gradient purple CTAs. Based on Stitch "Financial Atelier" prototype (`projects/16785577673651576321`).
+
 ## Next Up
 
 ### Day 3 — Apr 10: Deposit Flow

@@ -17,7 +17,6 @@ const DISCOVER_ITEMS: NavItem[] = [
   { label: "Zap In", icon: "bolt", href: "/zap" },
   { label: "Portfolio", icon: "account_balance_wallet", href: "/portfolio" },
   { label: "AI Agent", icon: "psychology", href: "/agent" },
-  { label: "About", icon: "info", href: "/about" },
 ];
 
 export function Sidebar() {
