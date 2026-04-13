@@ -11,7 +11,7 @@ type NavItem = {
 };
 
 const DISCOVER_ITEMS: NavItem[] = [
-  { label: "All Vaults", icon: "explore", param: {} },
+  { label: "Discover", icon: "explore", param: {} },
   { label: "Earn", icon: "savings", href: "/earn" },
   { label: "AI Chat", icon: "smart_toy", href: "/chat" },
   { label: "Zap In", icon: "bolt", href: "/zap" },
@@ -60,7 +60,7 @@ export function Sidebar() {
               Lyfi
             </div>
             <div className="font-[family-name:var(--font-manrope)] uppercase tracking-[0.2em] text-[9px] font-semibold" style={{ color: "var(--outline)" }}>
-              By LI.FI Earn
+              Yield Finder
             </div>
           </div>
         </div>

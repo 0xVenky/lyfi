@@ -90,7 +90,7 @@ export default async function HomePage({
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight font-[family-name:var(--font-manrope)]" style={{ color: "var(--on-surface)" }}>
-              Yield Discovery
+              LyFi - Liquidity Yield Finder
             </h1>
             <p className="mt-2 text-base max-w-md" style={{ color: "var(--on-surface-variant)" }}>
               Discover and deposit into {stats.total_pools}+ yield vaults across {stats.chains_covered} chains.

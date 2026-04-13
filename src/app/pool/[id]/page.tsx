@@ -6,6 +6,7 @@ import { VaultInfoCard } from "@/components/pool-detail/VaultInfoCard";
 import { SimulationCard } from "@/components/pool-detail/SimulationCard";
 import { DepositFlow } from "@/components/DepositFlow";
 import { ChainBadge } from "@/components/ChainDot";
+import { ProtocolLogoServer } from "@/components/ProtocolLogo";
 import { queryPoolById } from "@/lib/api/query";
 
 export const dynamic = "force-dynamic";
@@ -42,10 +43,13 @@ export default async function PoolDetailPage({
 
       {/* Hero: Pool name + centered deposit */}
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tight" style={{ color: "var(--on-surface)" }}>
-          {formatProtocolName(pool.protocol)}{" "}
-          <span className="font-normal" style={{ color: "var(--on-surface-variant)" }}>{pool.symbol}</span>
-        </h1>
+        <div className="flex items-center justify-center gap-3 mb-1">
+          <ProtocolLogoServer protocol={pool.protocol} size={36} />
+          <h1 className="text-3xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tight" style={{ color: "var(--on-surface)" }}>
+            {formatProtocolName(pool.protocol)}{" "}
+            <span className="font-normal" style={{ color: "var(--on-surface-variant)" }}>{pool.symbol}</span>
+          </h1>
+        </div>
         <div className="flex items-center justify-center gap-3 mt-3 flex-wrap" style={{ color: "var(--outline)" }}>
           <ChainBadge
             chain={pool.chain}

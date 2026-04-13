@@ -6,6 +6,7 @@ import type { PoolListItem } from "@/lib/types";
 import { formatTvl, formatApr, formatUsd, formatProtocolName, formatYieldSource } from "@/lib/utils";
 import { SimulationTooltip } from "./SimulationTooltip";
 import { ChainDot } from "./ChainDot";
+import { ProtocolLogo } from "./ProtocolLogo";
 
 export function VaultRow({ pool }: { pool: PoolListItem }) {
   const router = useRouter();
@@ -34,12 +35,8 @@ export function VaultRow({ pool }: { pool: PoolListItem }) {
         if (e.key === "Enter") router.push(`/pool/${pool.id}`);
       }}
     >
-      {/* Token icon area */}
-      <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center shrink-0 shadow-sm shadow-purple-500/20">
-        <span className="text-sm font-bold text-white">
-          {pool.symbol.charAt(0)}
-        </span>
-      </div>
+      {/* Protocol logo */}
+      <ProtocolLogo protocol={pool.protocol} symbol={pool.symbol} />
 
       {/* Name + protocol */}
       <div className="flex-1 min-w-0">
