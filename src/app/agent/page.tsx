@@ -177,24 +177,45 @@ export default function AgentDashboard() {
     : 0;
 
   // Chart data — portfolio value over time from log entries
+  const startingValue = portfolio.starting_capital_usd || log[0]?.portfolio_value_usd || 0;
   const chartData = log
     .filter((e) => e.portfolio_value_usd > 0)
-    .map((e) => ({
-      time: formatTs(e.timestamp),
-      value: e.portfolio_value_usd,
-      type: e.type,
-    }));
+    .map((e) => {
+      const gain = e.portfolio_value_usd - startingValue;
+      // Build event summary for tooltip
+      let event = "";
+      if (e.type === "rebalance") {
+        const rb = e.actions.find((a: VaultAction) => a.type === "rebalance");
+        if (rb) event = `Rebalanced: ${rb.from_vault} \u2192 ${rb.to_vault} (+${fmt(rb.improvement_base ?? 0)}% APY)`;
+      } else if (e.type === "initial_allocation") {
+        event = `Initial: ${e.actions.filter((a: VaultAction) => a.type === "deposit").map((a: VaultAction) => `${a.vault_name} (${a.chain})`).join(", ")}`;
+      } else if (e.type === "idle_allocation") {
+        const dep = e.actions.find((a: VaultAction) => a.type === "deposit");
+        if (dep) event = `Allocated idle: $${fmt(dep.amount_usd ?? 0)} \u2192 ${dep.vault_name}`;
+      } else if (e.type === "user_deposit") {
+        const dep = e.actions.find((a: VaultAction) => a.type === "deposit");
+        if (dep) event = `Deposit: +$${fmt(dep.amount_usd ?? 0)}`;
+      }
+      return {
+        time: formatTs(e.timestamp),
+        value: e.portfolio_value_usd,
+        gain,
+        type: e.type,
+        event,
+        earnings: e.earnings_since_last_usd ?? 0,
+      };
+    });
 
   // Find rebalance points for reference lines
   const rebalancePoints = log
     .filter((e) => e.type === "rebalance" || e.type === "idle_allocation" || e.type === "user_deposit")
     .map((e) => formatTs(e.timestamp));
 
-  // Calculate Y-axis domain with padding
-  const values = chartData.map((d) => d.value);
-  const minVal = Math.min(...values);
-  const maxVal = Math.max(...values);
-  const padding = Math.max((maxVal - minVal) * 0.15, 10);
+  // Y-axis: show gain/loss from starting value for better scaling
+  const gains = chartData.map((d) => d.gain);
+  const minGain = Math.min(...gains);
+  const maxGain = Math.max(...gains);
+  const gainPadding = Math.max((maxGain - minGain) * 0.15, 5);
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -237,7 +258,7 @@ export default function AgentDashboard() {
       {chartData.length > 1 && (
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <h2 className="text-sm font-semibold text-gray-700 mb-4">Portfolio Value</h2>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={320}>
             <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis
@@ -247,31 +268,26 @@ export default function AgentDashboard() {
                 axisLine={{ stroke: "#e5e7eb" }}
               />
               <YAxis
-                domain={[minVal - padding, maxVal + padding]}
+                dataKey="gain"
+                domain={[minGain - gainPadding, maxGain + gainPadding]}
                 tick={{ fontSize: 11, fill: "#9ca3af" }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}K`}
+                tickFormatter={(v: number) => `${v >= 0 ? "+" : ""}$${fmt(v)}`}
               />
-              <Tooltip
-                contentStyle={{
-                  background: "#fff",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-                formatter={(value: unknown) => [`$${fmt(Number(value ?? 0))}`, "Value"]}
-              />
+              <Tooltip content={<ChartTooltip startingValue={startingValue} />} />
+              <ReferenceLine y={0} stroke="#d1d5db" strokeDasharray="3 3" />
               {rebalancePoints.map((t, i) => (
                 <ReferenceLine key={i} x={t} stroke="#f59e0b" strokeDasharray="3 3" strokeWidth={1} />
               ))}
               <Line
                 type="monotone"
-                dataKey="value"
+                dataKey="gain"
                 stroke="#7c3aed"
                 strokeWidth={2}
                 dot={(props: Record<string, unknown>) => {
                   const { cx, cy, payload } = props as { cx: number; cy: number; payload: { type: string } };
+                  if (typeof cx !== "number" || typeof cy !== "number") return <circle r={0} />;
                   const isEvent = payload.type !== "check";
                   return isEvent ? (
                     <circle cx={cx} cy={cy} r={4} fill="#7c3aed" stroke="#fff" strokeWidth={2} />
@@ -285,7 +301,7 @@ export default function AgentDashboard() {
           </ResponsiveContainer>
           <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-violet-600 inline-block" /> Value
+              <span className="w-2 h-2 rounded-full bg-violet-600 inline-block" /> P&L vs ${fmt(startingValue, 0)} start
             </span>
             <span className="flex items-center gap-1">
               <span className="w-4 border-t border-dashed border-amber-400 inline-block" /> Rebalance / Deposit
@@ -476,6 +492,30 @@ function StatCard({
       <div className={`text-xs mt-0.5 ${positive ? "text-green-600" : highlight ? "text-amber-600" : "text-gray-400"}`}>
         {sub}
       </div>
+    </div>
+  );
+}
+
+function ChartTooltip({ active, payload, startingValue }: { active?: boolean; payload?: Array<{ payload: { time: string; value: number; gain: number; type: string; event: string; earnings: number } }>; startingValue: number }) {
+  if (!active || !payload?.[0]) return null;
+  const d = payload[0].payload;
+  const style = TYPE_STYLES[d.type] ?? TYPE_STYLES.check;
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 max-w-xs">
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${style.bg} ${style.text}`}>{style.label}</span>
+        <span className="text-[11px] text-gray-400">{d.time}</span>
+      </div>
+      <div className="text-sm font-semibold text-gray-900">${fmt(d.value)}</div>
+      <div className={`text-xs ${d.gain >= 0 ? "text-green-600" : "text-red-500"}`}>
+        {d.gain >= 0 ? "+" : ""}${fmt(d.gain)} from ${fmt(startingValue, 0)}
+      </div>
+      {d.earnings > 0 && (
+        <div className="text-[11px] text-green-600 mt-1">+${fmt(d.earnings)} this cycle</div>
+      )}
+      {d.event && (
+        <div className="text-[11px] text-gray-600 mt-1.5 pt-1.5 border-t border-gray-100">{d.event}</div>
+      )}
     </div>
   );
 }

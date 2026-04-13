@@ -66482,5 +66482,122 @@
       }
     ],
     "reasoning": "ethereum: GTUSDCRWA at 8.53% base. Current position is the best on this chain. Holding. ethereum: GTUSDCRWA at 8.53% base. Current position is the best on this chain. Holding. ethereum: GTUSDCRWA at 8.53% base. Current position is the best on this chain. Holding. ethereum: GTUSDCRWA at 8.53% base. Current position is the best on this chain. Holding."
+  },
+  {
+    "timestamp": "2026-04-13T14:26:34.875Z",
+    "cycle": 532,
+    "type": "check",
+    "portfolio_value_usd": 1020810.38,
+    "earnings_since_last_usd": 0.83,
+    "positions": [
+      {
+        "vault_name": "GTUSDCRWA",
+        "chain": "ethereum",
+        "current_apy": 8.53,
+        "value_usd": 420578.15,
+        "earnings_usd": 4.21
+      },
+      {
+        "vault_name": "GTUSDCRWA",
+        "chain": "ethereum",
+        "current_apy": 8.53,
+        "value_usd": 300157.69,
+        "earnings_usd": 3.01
+      },
+      {
+        "vault_name": "GTUSDCRWA",
+        "chain": "ethereum",
+        "current_apy": 8.53,
+        "value_usd": 200077.46,
+        "earnings_usd": 2
+      },
+      {
+        "vault_name": "GTUSDCRWA",
+        "chain": "ethereum",
+        "current_apy": 8.53,
+        "value_usd": 99997.09,
+        "earnings_usd": 1
+      }
+    ],
+    "alternatives_checked": [
+      {
+        "vault": "REECOUSDC",
+        "slug": "1-0xd1e9242e075db4bdd3f3c721d7d5fd4180a94a7e",
+        "chain": "Ethereum",
+        "chain_id": 1,
+        "protocol": "morpho-v1",
+        "protocol_url": "https://app.morpho.org/ethereum/vault/0xD1E9242e075Db4bdd3f3c721D7d5fd4180A94A7e",
+        "apy_total": 6.82,
+        "apy_base": 6.52,
+        "organic": 96,
+        "tvl_usd": 16167948
+      },
+      {
+        "vault": "AUSDC",
+        "slug": "1-0xb0f05e4de970a1aaf77f8c2f823953a367504ba9",
+        "chain": "Ethereum",
+        "chain_id": 1,
+        "protocol": "morpho-v1",
+        "protocol_url": "https://app.morpho.org/ethereum/vault/0xb0f05E4De970A1aaf77f8C2F823953a367504BA9",
+        "apy_total": 6.34,
+        "apy_base": 6.34,
+        "organic": 100,
+        "tvl_usd": 10632793
+      },
+      {
+        "vault": "GTUSDCF",
+        "slug": "1-0x9a1d6bd5b8642c41f25e0958129b85f8e1176f3e",
+        "chain": "Ethereum",
+        "chain_id": 1,
+        "protocol": "morpho-v1",
+        "protocol_url": "https://app.morpho.org/ethereum/vault/0x9a1D6bd5b8642C41F25e0958129B85f8E1176F3e",
+        "apy_total": 6.5,
+        "apy_base": 6.21,
+        "organic": 95,
+        "tvl_usd": 13021295
+      },
+      {
+        "vault": "HYPERUSDCA",
+        "slug": "1-0x777791c4d6dc2ce140d00d2828a7c93503c67777",
+        "chain": "Ethereum",
+        "chain_id": 1,
+        "protocol": "morpho-v1",
+        "protocol_url": "https://app.morpho.org/ethereum/vault/0x777791C4d6DC2CE140D00D2828a7C93503c67777",
+        "apy_total": 5.69,
+        "apy_base": 5.69,
+        "organic": 100,
+        "tvl_usd": 20653317
+      },
+      {
+        "vault": "HYPERUSDCA",
+        "slug": "143-0xa8665084d8cd6276c00ca97cbc0bf4bc9ae94c79",
+        "chain": "Monad",
+        "chain_id": 143,
+        "protocol": "morpho-v1",
+        "protocol_url": "https://app.morpho.org/monad/vault/0xA8665084D8CD6276c00CA97Cbc0BF4BC9ae94c79",
+        "apy_total": 5.65,
+        "apy_base": 5.65,
+        "organic": 100,
+        "tvl_usd": 19459075
+      },
+      {
+        "vault": "BBQUSDC",
+        "slug": "1-0xbeeff2c5bf38f90e3482a8b19f12e5a6d2fca757",
+        "chain": "Ethereum",
+        "chain_id": 1,
+        "protocol": "morpho-v1",
+        "protocol_url": "https://app.morpho.org/ethereum/vault/0xbeeff2C5bF38f90e3482a8b19F12E5a6D2FCa757",
+        "apy_total": 5.91,
+        "apy_base": 5.61,
+        "organic": 95,
+        "tvl_usd": 22635943
+      }
+    ],
+    "actions": [
+      {
+        "type": "hold"
+      }
+    ],
+    "reasoning": "ethereum: GTUSDCRWA at 8.53% base. Current position is the best on this chain. Holding. ethereum: GTUSDCRWA at 8.53% base. Current position is the best on this chain. Holding. ethereum: GTUSDCRWA at 8.53% base. Current position is the best on this chain. Holding. ethereum: GTUSDCRWA at 8.53% base. Current position is the best on this chain. Holding."
   }
 ]
