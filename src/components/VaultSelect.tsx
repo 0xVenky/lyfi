@@ -15,6 +15,7 @@ export type VaultOption = {
   apr: number;
   tvl: number;
   underlying_tokens: { address: string; symbol: string; decimals: number }[];
+  isRedeemable?: boolean;
 };
 
 function formatApr(n: number): string {
@@ -33,9 +34,17 @@ function formatTvl(n: number): string {
 export function VaultSelect({
   selected,
   onSelect,
+  redeemableOnly = false,
+  externalVaults,
+  emptyMessage,
 }: {
   selected: VaultOption | null;
   onSelect: (vault: VaultOption) => void;
+  redeemableOnly?: boolean;
+  /** When provided, skip API fetch and use these vaults directly. */
+  externalVaults?: VaultOption[];
+  /** Message shown when no vaults are available. */
+  emptyMessage?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -43,10 +52,19 @@ export function VaultSelect({
   const [vaults, setVaults] = useState<VaultOption[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Use external vaults if provided
   useEffect(() => {
+    if (externalVaults) {
+      setVaults(externalVaults);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
-    fetch("/api/v1/pools?depositable=true&limit=500&sort=apr_total&order=desc")
+    const query = redeemableOnly
+      ? "/api/v1/pools?redeemable=true&limit=500&sort=apr_total&order=desc"
+      : "/api/v1/pools?depositable=true&limit=500&sort=apr_total&order=desc";
+    fetch(query)
       .then((r) => r.json())
       .then((data) => {
         if (cancelled) return;
@@ -57,6 +75,7 @@ export function VaultSelect({
           chain: string;
           vault_chain_id: number;
           vault_address: string;
+          is_redeemable: boolean;
           yield: { apr_total: number };
           tvl_usd: number;
           exposure: {
@@ -67,8 +86,9 @@ export function VaultSelect({
             }[];
           };
         }>;
+        const filtered = redeemableOnly ? pools.filter((p) => p.is_redeemable) : pools;
         setVaults(
-          pools.map((p) => ({
+          filtered.map((p) => ({
             id: p.id,
             symbol: p.symbol,
             protocol: p.protocol,
@@ -88,7 +108,7 @@ export function VaultSelect({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [externalVaults, redeemableOnly]);
 
   const chains = useMemo(() => {
     const counts = new Map<number, number>();
@@ -234,7 +254,7 @@ export function VaultSelect({
               )}
               {!loading && filtered.length === 0 && (
                 <div className="py-8 text-center text-sm" style={{ color: "var(--outline)" }}>
-                  No vaults found
+                  {emptyMessage ?? "No vaults found"}
                 </div>
               )}
               {filtered.map((vault) => (
