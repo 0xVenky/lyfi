@@ -172,7 +172,7 @@ export default function PortfolioPage() {
     try {
       const [posRes, poolsRes, balRes] = await Promise.all([
         fetch(`/api/v1/portfolio/${queryAddress}`),
-        fetch("/api/v1/pools?limit=500"),
+        fetch("/api/v1/pools?limit=2000"),
         fetch(`/api/v1/balances/${queryAddress}`),
       ]);
 
@@ -189,18 +189,31 @@ export default function PortfolioPage() {
       if (posRes.ok) {
         const posData = await posRes.json();
         const raw: RawPosition[] = posData.positions ?? [];
-        const poolMap = new Map(
+        // Match by vault address OR by protocol+chain+underlying token
+        const byVaultAddr = new Map(
           pools.map((p) => [
             `${p.vault_chain_id}-${p.vault_address.toLowerCase()}`,
             p,
           ]),
         );
+        function findPool(r: RawPosition) {
+          // Direct vault address match
+          const direct = byVaultAddr.get(`${r.chainId}-${r.asset.address.toLowerCase()}`);
+          if (direct) return direct;
+          // Fallback: match by protocol name + chain + underlying token
+          return pools.find(
+            (p) =>
+              p.vault_chain_id === r.chainId &&
+              p.protocol === r.protocolName &&
+              p.exposure.underlying_tokens.some(
+                (ut: { address: string }) => ut.address.toLowerCase() === r.asset.address.toLowerCase(),
+              ),
+          ) ?? null;
+        }
 
         enrichedPositions = raw
           .map((r) => {
-            const m = poolMap.get(
-              `${r.chainId}-${r.asset.address.toLowerCase()}`,
-            );
+            const m = findPool(r);
             return {
               chainId: r.chainId,
               protocolName: r.protocolName,

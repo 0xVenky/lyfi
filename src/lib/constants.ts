@@ -119,3 +119,116 @@ export const ERC20_TOKENS_BY_CHAIN: Record<number, CommonToken[]> = {
     { address: "0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4", symbol: "USDC", decimals: 6 },
   ],
 };
+
+// ---------------------------------------------------------------------------
+// Aave V3 — Pool contract addresses & ABI fragments
+// ---------------------------------------------------------------------------
+
+export const AAVE_V3_POOL: Record<number, string> = {
+  1:     "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2", // Ethereum
+  8453:  "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Base
+  42161: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Arbitrum
+};
+
+export const AAVE_V3_CHAINS = Object.keys(AAVE_V3_POOL).map(Number);
+
+// Minimal ABI — only the functions we need
+export const AAVE_POOL_ABI = [
+  {
+    name: "getUserAccountData",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "user", type: "address" }],
+    outputs: [
+      { name: "totalCollateralBase", type: "uint256" },
+      { name: "totalDebtBase", type: "uint256" },
+      { name: "availableBorrowsBase", type: "uint256" },
+      { name: "currentLiquidationThreshold", type: "uint256" },
+      { name: "ltv", type: "uint256" },
+      { name: "healthFactor", type: "uint256" },
+    ],
+  },
+  {
+    name: "getReserveData",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "asset", type: "address" }],
+    outputs: [
+      {
+        name: "",
+        type: "tuple",
+        components: [
+          { name: "configuration", type: "uint256" },
+          { name: "liquidityIndex", type: "uint128" },
+          { name: "currentLiquidityRate", type: "uint128" },
+          { name: "variableBorrowIndex", type: "uint128" },
+          { name: "currentVariableBorrowRate", type: "uint128" },
+          { name: "currentStableBorrowRate", type: "uint128" },
+          { name: "lastUpdateTimestamp", type: "uint40" },
+          { name: "id", type: "uint16" },
+          { name: "aTokenAddress", type: "address" },
+          { name: "stableDebtTokenAddress", type: "address" },
+          { name: "variableDebtTokenAddress", type: "address" },
+          { name: "interestRateStrategyAddress", type: "address" },
+          { name: "accruedToTreasury", type: "uint128" },
+          { name: "unbacked", type: "uint128" },
+          { name: "isolationModeTotalDebt", type: "uint128" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "repay",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "asset", type: "address" },
+      { name: "amount", type: "uint256" },
+      { name: "interestRateMode", type: "uint256" },
+      { name: "onBehalfOf", type: "address" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+] as const;
+
+// Aave V3 UI Pool Data Provider — for per-reserve user data
+export const AAVE_V3_UI_POOL_DATA_PROVIDER: Record<number, string> = {
+  1:     "0x91c0eA31b49B69Ea18607702c5d9aC360bf3dE7d",
+  8453:  "0x174446a6741300cD2E7C1b1A636Fee99c8F83502",
+  42161: "0x145dE30c929a065582da84Cf96F88460dB9745A7",
+};
+
+export const AAVE_UI_POOL_DATA_PROVIDER_ABI = [
+  {
+    name: "getUserReservesData",
+    type: "function",
+    stateMutability: "view",
+    inputs: [
+      { name: "provider", type: "address" },
+      { name: "user", type: "address" },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "tuple[]",
+        components: [
+          { name: "underlyingAsset", type: "address" },
+          { name: "scaledATokenBalance", type: "uint256" },
+          { name: "usageAsCollateralEnabledOnUser", type: "bool" },
+          { name: "stableBorrowRate", type: "uint256" },
+          { name: "scaledVariableBorrowBalance", type: "uint256" },  // non-zero = has debt
+          { name: "principalStableDebt", type: "uint256" },
+          { name: "stableBorrowLastUpdateTimestamp", type: "uint256" },
+        ],
+      },
+      { name: "", type: "uint256" },
+    ],
+  },
+] as const;
+
+// Aave V3 Pool Address Provider (needed as input to UI data provider)
+export const AAVE_V3_POOL_ADDRESS_PROVIDER: Record<number, string> = {
+  1:     "0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e",
+  8453:  "0xe20fCBdBfFC4Dd138cE8b2E6FBb6CB49777ad64D",
+  42161: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
+};

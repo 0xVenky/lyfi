@@ -126,44 +126,41 @@ export function ZapWithdrawBox() {
           exposure: { underlying_tokens: { address: string; symbol: string; decimals: number }[] };
         }>;
 
-        // Build lookups for user positions by multiple keys
         const activePositions = positions.filter((p) => parseFloat(p.balanceUsd) > 0.01);
-        // Key 1: vault address match (chainId-vaultAddress)
-        const byVaultAddr = new Set(
-          activePositions.map((p) => `${p.chainId}-${p.asset.address.toLowerCase()}`),
-        );
-        // Key 2: protocol + chain + underlying token match
-        type PosInfo = { chainId: number; protocolName: string; tokenAddr: string };
-        const posInfos: PosInfo[] = activePositions.map((p) => ({
-          chainId: p.chainId,
-          protocolName: p.protocolName ?? "",
-          tokenAddr: p.asset.address.toLowerCase(),
-        }));
 
-        // Match against pool data — try vault address first, then protocol+chain+underlying
-        const matched: VaultOption[] = pools
-          .filter((p) => {
-            // Direct vault address match
-            if (byVaultAddr.has(`${p.vault_chain_id}-${p.vault_address.toLowerCase()}`)) return true;
-            // Protocol + chain + underlying token match
-            return posInfos.some((pos) =>
-              pos.chainId === p.vault_chain_id &&
-              pos.protocolName === p.protocol &&
-              p.exposure.underlying_tokens.some((ut) => ut.address.toLowerCase() === pos.tokenAddr),
+        // For each position, find ONE best-matching pool (not all)
+        const matched: VaultOption[] = [];
+        for (const pos of activePositions) {
+          // Try exact vault address match first
+          let pool = pools.find(
+            (p: { vault_chain_id: number; vault_address: string }) =>
+              p.vault_chain_id === pos.chainId &&
+              p.vault_address.toLowerCase() === pos.asset.address.toLowerCase(),
+          );
+          // Fallback: first pool matching protocol + chain + underlying token
+          if (!pool) {
+            pool = pools.find(
+              (p: { vault_chain_id: number; protocol: string; exposure: { underlying_tokens: { address: string }[] } }) =>
+                p.vault_chain_id === pos.chainId &&
+                p.protocol === pos.protocolName &&
+                p.exposure.underlying_tokens.some((ut: { address: string }) => ut.address.toLowerCase() === pos.asset.address.toLowerCase()),
             );
-          })
-          .map((p) => ({
-            id: p.id,
-            symbol: p.symbol,
-            protocol: p.protocol,
-            chain: p.chain,
-            chainId: p.vault_chain_id,
-            address: p.vault_address,
-            apr: p.yield.apr_total,
-            tvl: p.tvl_usd,
-            underlying_tokens: p.exposure.underlying_tokens,
-            isRedeemable: p.is_redeemable,
-          }));
+          }
+          if (!pool) continue;
+          if (matched.some((m) => m.id === pool.id)) continue;
+          matched.push({
+            id: pool.id,
+            symbol: pool.symbol,
+            protocol: pool.protocol,
+            chain: pool.chain,
+            chainId: pool.vault_chain_id,
+            address: pool.vault_address,
+            apr: pool.yield.apr_total,
+            tvl: pool.tvl_usd,
+            underlying_tokens: pool.exposure.underlying_tokens,
+            isRedeemable: pool.is_redeemable,
+          });
+        }
 
         setUserVaults(matched);
       })
@@ -238,7 +235,13 @@ export function ZapWithdrawBox() {
       });
       const res = await fetch(`/api/v1/quote?${params}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `Quote failed (${res.status})`);
+      if (!res.ok) {
+        const raw = data.error ?? data.message ?? "";
+        let msg = typeof raw === "string" ? raw : JSON.stringify(raw);
+        if (msg.includes("No available quotes")) msg = "No withdrawal route available for this vault. Try withdrawing directly on the protocol's site.";
+        else if (msg.length > 120) msg = msg.slice(0, 120) + "...";
+        throw new Error(msg || `Quote failed (${res.status})`);
+      }
 
       const gasCosts: { amountUSD?: string }[] = data.estimate?.gasCosts ?? [];
       const totalGas = gasCosts.reduce((s: number, g: { amountUSD?: string }) => s + parseFloat(g.amountUSD ?? "0"), 0);

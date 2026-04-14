@@ -16,6 +16,7 @@ const DISCOVER_ITEMS: NavItem[] = [
   { label: "AI Chat", icon: "smart_toy", href: "/chat" },
   { label: "Zap In", icon: "bolt", href: "/zap" },
   { label: "Portfolio", icon: "account_balance_wallet", href: "/portfolio" },
+  { label: "Rescue", icon: "shield", href: "/rescue" },
   { label: "AI Agent", icon: "psychology", href: "/agent" },
 ];
 
